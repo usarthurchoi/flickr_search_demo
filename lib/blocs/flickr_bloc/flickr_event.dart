@@ -18,16 +18,3 @@ class SearchFlickr extends FlickrEvent {
   @override
   bool get stringify => true;
 }
-
-class SearchFlickrPopular extends FlickrEvent {
-  final int page;
-  final int per_page;
-
-  SearchFlickrPopular({@required this.page, @required this.per_page});
-
-  @override
-  List<Object> get props => [page, per_page];
-
-  @override
-  bool get stringify => true;
-}

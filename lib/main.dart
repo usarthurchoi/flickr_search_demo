@@ -1,3 +1,5 @@
+import 'package:flickr_demo/blocs/recent_photo_bloc/recent_photo_bloc.dart';
+
 import './screens/flickr_search.dart';
 import './services/flickr_search_service.dart';
 import 'package:flutter/material.dart';
@@ -13,12 +15,15 @@ void main() {
       BlocProvider(
           create: (context) =>
               FlickrBloc(flickrSearchService: FlickrSearchService())
-          // ..add(SearchFlickr(
-          //   term: 'apple',
+          // ..add(SearchFlickrPopular(
           //   page: 1,
           //   per_page: 40,
           // )),
           ),
+      BlocProvider(
+        create: (context) =>
+            RecentPhotoBloc(flickrSearchService: FlickrSearchService()),
+      ),
     ],
     child: MaterialApp(
       title: 'Flickr Demo',

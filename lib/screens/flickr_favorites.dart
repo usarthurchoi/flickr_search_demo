@@ -1,3 +1,4 @@
+import 'package:flickr_demo/blocs/recent_photo_bloc/recent_photo_bloc.dart';
 import 'package:flickr_demo/models/flickr_photo.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -16,7 +17,7 @@ class FlickrRecentHome extends StatefulWidget {
 }
 
 class _FlickrRecentHomeState extends State<FlickrRecentHome>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin<FlickrRecentHome> {
   int _page;
   int _page_size;
   int _totalPhotos;
@@ -32,7 +33,7 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
     _tabController = new TabController(length: 2, vsync: this);
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-      BlocProvider.of<FlickrBloc>(context)
+      BlocProvider.of<RecentPhotoBloc>(context)
         .add(SearchFlickrPopular(page: _page, per_page: _page_size));
     });
   }
@@ -45,15 +46,15 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
 
   void fetchNextPage() {
     ++_page;
-    BlocProvider.of<FlickrBloc>(context)
+    BlocProvider.of<RecentPhotoBloc>(context)
         .add(SearchFlickrPopular(page: _page, per_page: _page_size));
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<FlickrBloc, FlickrState>(
+    return BlocListener<RecentPhotoBloc, RecentPhotoState>(
       listener: (context, state) {
-        if (state is FlickrRecentsLoaded) {
+        if (state is RecentsPhotoLoaded) {
           print('detect listening FlickrRecentsLoaded...');
           setState(() {
             _photos.addAll(state.photos);
@@ -61,9 +62,9 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
           });
         }
       },
-      child: BlocBuilder<FlickrBloc, FlickrState>(
+      child: BlocBuilder<RecentPhotoBloc, RecentPhotoState>(
         builder: (context, state) {
-          if (state is FlickrRecentsLoaded) {
+          if (state is RecentsPhotoLoaded) {
             print('building listening FlickrRecentsLoaded...');
 
             return PhotoGalleryView(
@@ -72,19 +73,20 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
               thumbnailSize: ThumbnailSize.size75,
             );
           }
-          if (state is FlickrLoading) {
+          if (state is RecentsPhotoLoading) {
             return Center(child: CircularProgressIndicator());
           }
-          if (state is FlickrError) {
+          if (state is RecentsPhotoError) {
             return Text(state.message);
           }
-          if (state is FlickrEmpty) {
+          if (state is RecentsPhotoEmpty) {
             return Text('Search Flickr. Enjoy!');
-          } else if (state is FlickrLoaded) {
-            return Text('Humm ignore this');
-          }
+          } 
         },
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

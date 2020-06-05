@@ -24,16 +24,6 @@ class FlickrLoaded extends FlickrState {
   List<Object> get props => [photos, term, page, per_page];
 }
 
-class FlickrRecentsLoaded extends FlickrState {
-  final int page;
-  final int per_page;
-  final List<FlickrPhoto> photos;
-  FlickrRecentsLoaded({@required this.photos, this.page, this.per_page});
-
-  @override
-  List<Object> get props => [photos, page, per_page];
-}
-
 class FlickrError extends FlickrState {
   final String message;
   FlickrError({this.message});

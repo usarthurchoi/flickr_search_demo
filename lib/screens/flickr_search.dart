@@ -14,8 +14,11 @@ class FlickrSearchHome extends StatefulWidget {
   _FlickrSearchHomeState createState() => _FlickrSearchHomeState();
 }
 
+// on AutomaticKeepAliveClientMixin
+// https://medium.com/@diegoveloper/flutter-persistent-tab-bars-a26220d322bc
+
 class _FlickrSearchHomeState extends State<FlickrSearchHome>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin<FlickrSearchHome> {
   String _term;
   int _page;
   int _page_size;
@@ -108,4 +111,7 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
       ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

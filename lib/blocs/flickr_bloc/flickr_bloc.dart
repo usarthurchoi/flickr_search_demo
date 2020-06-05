@@ -38,21 +38,6 @@ class FlickrBloc extends Bloc<FlickrEvent, FlickrState> {
       } catch (exp) {
         yield FlickrError(message: exp.toString());
       }
-    } else if (event is SearchFlickrPopular) {
-      yield FlickrLoading();
-      try {
-        final photos = await _flickrSearchService.popularFlickr(
-          page: event.page,
-          per_page: event.per_page,
-        );
-        yield FlickrRecentsLoaded(
-          photos: photos,
-          page: event.page,
-          per_page: event.per_page,
-        );
-      } catch (exp) {
-        yield FlickrError(message: exp.toString());
-      }
     }
   }
 }
