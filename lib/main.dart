@@ -13,13 +13,9 @@ void main() {
   runApp(MultiBlocProvider(
     providers: [
       BlocProvider(
-          create: (context) =>
-              FlickrBloc(flickrSearchService: FlickrSearchService())
-          // ..add(SearchFlickrPopular(
-          //   page: 1,
-          //   per_page: 40,
-          // )),
-          ),
+        create: (context) =>
+            FlickrBloc(flickrSearchService: FlickrSearchService()),
+      ),
       BlocProvider(
         create: (context) =>
             RecentPhotoBloc(flickrSearchService: FlickrSearchService()),
@@ -35,49 +31,30 @@ void main() {
   ));
 }
 
-class FlickrHome extends StatefulWidget {
+class FlickrHome extends StatelessWidget {
   FlickrHome({Key key}) : super(key: key);
 
   @override
-  _FlickrHomeState createState() => _FlickrHomeState();
-}
-
-class _FlickrHomeState extends State<FlickrHome>
-    with SingleTickerProviderStateMixin {
-  TabController _tabController;
-
-  @override
-  void initState() {
-    _tabController = new TabController(length: 2, vsync: this);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Flickr'),
-        bottom: TabBar(
-            controller: _tabController,
-            unselectedLabelColor: Colors.white,
-            labelColor: Colors.amber,
-            tabs: [
-              Tab(icon: Icon(Icons.favorite)),
-              Tab(icon: Icon(Icons.search)),
-            ]),
-      ),
-      body: TabBarView(
-        children: [
-          FlickrRecentHome(),
-          FlickrSearchHome(),
-        ],
-        controller: _tabController,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Flickr'),
+          bottom: TabBar(
+              unselectedLabelColor: Colors.white,
+              labelColor: Colors.amber,
+              tabs: [
+                Tab(icon: Icon(Icons.watch), text: 'Recent Upload',),
+                Tab(icon: Icon(Icons.search), text: 'Search',),
+              ]),
+        ),
+        body: TabBarView(
+          children: [
+            FlickrRecentHome(),
+            FlickrSearchHome(),
+          ],
+        ),
       ),
     );
   }

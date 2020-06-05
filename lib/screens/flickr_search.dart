@@ -18,7 +18,9 @@ class FlickrSearchHome extends StatefulWidget {
 // https://medium.com/@diegoveloper/flutter-persistent-tab-bars-a26220d322bc
 
 class _FlickrSearchHomeState extends State<FlickrSearchHome>
-    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin<FlickrSearchHome> {
+    with
+        SingleTickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin<FlickrSearchHome> {
   String _term;
   int _page;
   int _page_size;
@@ -62,54 +64,58 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
     );
   }
 
-  Column _buildPhotoSearchForm(BuildContext context) {
-    return Column(
-      children: [
-        TextField(
-          decoration: InputDecoration(
-            prefixIcon: Icon(Icons.search),
-            hintText: 'Photo search term',
-          ),
-          onSubmitted: (term) {
-            setState(() {
-              _term = term;
-              _page = 1;
-              _page_size = 100;
+  Widget _buildPhotoSearchForm(BuildContext context) {
+    // https://flutter.dev/docs/cookbook/design/orientation
+    return OrientationBuilder(builder: (context, orientation) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.search),
+              hintText: 'Photo search term',
+            ),
+            onSubmitted: (term) {
+              setState(() {
+                _term = term;
+                _page = 1;
+                _page_size = 100;
 
-              _photos.removeRange(0, _photos.length);
-            });
+                _photos.removeRange(0, _photos.length);
+              });
 
-            BlocProvider.of<FlickrBloc>(context).add(
-                SearchFlickr(term: _term, page: _page, per_page: _page_size));
-          },
-        ),
-        Expanded(
-          child: BlocBuilder<FlickrBloc, FlickrState>(
-            builder: (context, state) {
-              if (state is FlickrLoaded) {
-                print('building listening FlickrLoaded...');
-
-                return PhotoGalleryView(
-                  photos: _photos,
-                  nextPageFetchCallBack: fetchNextPage,
-                );
-              }
-              if (state is FlickrLoading) {
-                return Center(child: CircularProgressIndicator());
-              }
-              if (state is FlickrError) {
-                return Text(state.message);
-              }
-              if (state is FlickrEmpty) {
-                return Text('Search Flickr. Enjoy!');
-              } else {
-                return Container();
-              }
+              BlocProvider.of<FlickrBloc>(context).add(
+                  SearchFlickr(term: _term, page: _page, per_page: _page_size));
             },
           ),
-        ),
-      ],
-    );
+          Expanded(
+            child: BlocBuilder<FlickrBloc, FlickrState>(
+              builder: (context, state) {
+                if (state is FlickrLoaded) {
+                  print('building listening FlickrLoaded...');
+
+                  return PhotoGalleryView(
+                    photos: _photos,
+                    nextPageFetchCallBack: fetchNextPage,
+                  );
+                }
+                if (state is FlickrLoading) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (state is FlickrError) {
+                  return Text(state.message);
+                }
+                if (state is FlickrEmpty) {
+                  return Text('Search Flickr. Enjoy!');
+                } else {
+                  return Container();
+                }
+              },
+            ),
+          ),
+        ],
+      );
+    });
   }
 
   @override
