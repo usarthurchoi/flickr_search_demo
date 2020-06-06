@@ -17,12 +17,13 @@ class FlickrRecentHome extends StatefulWidget {
 }
 
 class _FlickrRecentHomeState extends State<FlickrRecentHome>
-    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin<FlickrRecentHome> {
+    with
+        SingleTickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin<FlickrRecentHome> {
   int _page;
   int _page_size;
   int _totalPhotos;
   List<FlickrPhoto> _photos;
-  TabController _tabController;
 
   @override
   void initState() {
@@ -30,18 +31,11 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
     _page_size = 100;
     _totalPhotos = 0;
     _photos = [];
-    _tabController = new TabController(length: 2, vsync: this);
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       BlocProvider.of<RecentPhotoBloc>(context)
-        .add(SearchFlickrPopular(page: _page, per_page: _page_size));
+          .add(SearchFlickrPopular(page: _page, per_page: _page_size));
     });
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   void fetchNextPage() {
@@ -81,7 +75,7 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
           }
           if (state is RecentsPhotoEmpty) {
             return Text('Search Flickr. Enjoy!');
-          } 
+          }
         },
       ),
     );

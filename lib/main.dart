@@ -9,7 +9,7 @@ import './blocs/simple_bloc_delegate.dart';
 import 'screens/flickr_favorites.dart';
 
 void main() {
-  BlocSupervisor.delegate = SimpleBlocDelegate();
+  //BlocSupervisor.delegate = SimpleBlocDelegate();
   runApp(MultiBlocProvider(
     providers: [
       BlocProvider(

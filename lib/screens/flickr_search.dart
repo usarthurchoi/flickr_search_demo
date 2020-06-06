@@ -1,4 +1,5 @@
 import 'package:flickr_demo/models/flickr_photo.dart';
+import 'package:flutter/scheduler.dart';
 
 import '../screens/photo_gallery.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
   int _page_size;
   int _totalPhotos = 0;
   List<FlickrPhoto> _photos = [];
+  TextEditingController _searchTextController = TextEditingController();
 
   void fetchNextPage() {
     ++_page;
@@ -50,14 +52,22 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
     // https://flutter.dev/docs/cookbook/design/orientation
     return OrientationBuilder(builder: (context, orientation) {
       print('from _buildPhotoSearchForm, Orientation changed: $orientation');
+      //SchedulerBinding.instance.ensureVisualUpdate();
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
+              controller: _searchTextController,
               decoration: InputDecoration(
                   prefixIcon: Icon(Icons.search),
+                  suffixIcon: GestureDetector(
+                    child: Icon(Icons.clear),
+                    onTap: () {
+                      _searchTextController.clear();
+                    },
+                  ),
                   hintText: 'Photo search term',
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8)))),
