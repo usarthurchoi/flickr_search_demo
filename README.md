@@ -1,12 +1,5 @@
 # flickr_demo
 
-flutter_test
-Key:
-1b94d66369b01f348f6270e37f9e4623
-
-Secret:
-d34fed83fa91d8b9
-
 flickr.photos.search
 
 Authentication
@@ -234,27 +227,6 @@ The SOAP envelope send in the request could not be parsed.
 The XML-RPC request document could not be parsed.
 116: Bad URL found
 One or more arguments contained a URL that has been used for abuse on Flickr.
-
-=======================
-Flickr API
-
-Images are retrieved by hitting the Flickr API.
-
-    Search Path: https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key={fickr_api_key}&format=json&nojsoncallback=1&safe_search=1&per_page={page_size}&text={search_text}&page={page_num}
-    Example: https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=a4f28588b57387edc18282228da39744&format=json&nojsoncallback=1&safe_search=1&per_page=60&text=kittens&page=1
-    Response includes an array of photo objects, each represented as:
-
-{
-"id": "43213681030",
-"owner": "164058447@N08",
-"secret": "a4bf8df905",
-"server": "1937",
-"farm": 2,
-"title": "Puss under the boot",
-"ispublic": 1,
-"isfriend": 0,
-"isfamily": 0
-}
 
 https://www.flickr.com/services/api/misc.urls.html
 
