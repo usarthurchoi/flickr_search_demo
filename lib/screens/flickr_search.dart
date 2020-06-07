@@ -45,18 +45,19 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
   }
 
   ///deep copy
-  List<FlickrPhoto> _deepCopy(List<FlickrPhoto>  orginal) {
+  List<FlickrPhoto> _deepCopy(List<FlickrPhoto> orginal) {
     List<FlickrPhoto> copyList = [];
     for (var item in orginal) {
       FlickrPhoto fp = new FlickrPhoto(
-          id: item.id,
-          owner: item.owner,
-          originalImageLink: item.originalImageLink,
-          secret: item.secret,
-          server: item.server,
-          farm: item.farm,
-          title: item.title,
-          );
+        id: item.id,
+        owner: item.owner,
+        originalImageLink: item.originalImageLink,
+        secret: item.secret,
+        server: item.server,
+        farm: item.farm,
+        title: item.title,
+        isFavorite: item.isFavorite,
+      );
       copyList.add(fp);
     }
     return copyList;
@@ -64,13 +65,13 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
 
   void _saveSearch() {
     print('saving term: $_term...');
-    previousSearches[_term] =_deepCopy(_photos);
+    previousSearches[_term] = _deepCopy(_photos);
   }
 
   void _clearSearch() {
     if (_term != null && _term.isNotEmpty) {
       //previousSearches[_term] = _photos;
-         _saveSearch();
+      _saveSearch();
     }
     _term = '';
     _page = DEFAULT_START_PAGE;
@@ -120,8 +121,10 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
                 actions: [
                   IconButton(
                     icon: Icon(Icons.photo_album),
-                    onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => SearchHistory(previousSearches: previousSearches),
+                    onPressed: () =>
+                        Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          SearchHistory(previousSearches: previousSearches),
                     )),
                   ),
                 ],

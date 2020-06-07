@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-class FlickrPhoto extends Equatable {
+class FlickrPhoto {
   final String id;
   final String owner;
   final String secret;
@@ -8,6 +8,8 @@ class FlickrPhoto extends Equatable {
   final int farm;
   final String title;
   final String originalImageLink;
+
+  bool isFavorite;
 
   FlickrPhoto({
     this.id,
@@ -17,13 +19,16 @@ class FlickrPhoto extends Equatable {
     this.farm,
     this.title,
     this.originalImageLink,
+    this.isFavorite = false,
   });
 
   @override
-  List<Object> get props => [id, title, server, farm, owner, secret];
+  int get hashCode => id.hashCode;
 
   @override
-  bool get stringify => true;
+  String toString() {
+    return 'FlickrPhoto $id';
+  }
 
   static FlickrPhoto fromJson(Map<String, dynamic> json) {
     return FlickrPhoto(

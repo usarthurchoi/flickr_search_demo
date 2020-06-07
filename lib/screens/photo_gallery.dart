@@ -5,7 +5,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'consts.dart';
 
 class PhotoGalleryView extends StatefulWidget {
-  
   final ThumbnailSize thumbnailSize;
   final void Function() nextPageFetchCallBack;
   final void Function() notifyScrollOffset;
@@ -16,7 +15,6 @@ class PhotoGalleryView extends StatefulWidget {
       @required this.photos,
       @required this.nextPageFetchCallBack,
       @required this.notifyScrollOffset,
-      
       this.thumbnailSize = ThumbnailSize.size100})
       : super(key: key);
 
@@ -26,25 +24,19 @@ class PhotoGalleryView extends StatefulWidget {
 
 // https://flutter.dev/docs/cookbook/design/orientation
 class _PhotoGalleryViewState extends State<PhotoGalleryView> {
-  
-
   @override
   void initState() {
     print('initstate ${DateTime.now()}');
-    
+
     super.initState();
   }
-
- 
 
   @override
   Widget build(BuildContext context) {
     //return OrientationBuilder(builder: (context, orientation) {
     return SliverGrid(
       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: (widget.thumbnailSize == ThumbnailSize.size100)
-            ? 100
-            : 75, //extent, //200.0,
+        maxCrossAxisExtent: 100.0,
         mainAxisSpacing: 2.0,
         crossAxisSpacing: 2.0,
         //childAspectRatio: 4.0,
@@ -59,20 +51,53 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
             return Container(width: 100, height: 100, color: Colors.yellow);
           }
           final fp = widget.photos[index];
-          return Container(
-            alignment: Alignment.center,
-            child: GestureDetector(
-                child: Image.network(
-                  fp.imageSmallSquare100,
-                  fit: BoxFit.cover,
-                ),
-                onTap: () async {
-                  final url = fp.originalImage;
-                  if (await canLaunch(url)) {
-                    await launch(url);
-                  }
-                }),
-          );
+          return Stack(children: [
+            Container(
+              alignment: Alignment.center,
+              child: GestureDetector(
+                  child: Image.network(
+                    fp.imageSmallSquare100,
+                    fit: BoxFit.cover,
+                  ),
+                  onTap: () async {
+                    final url = fp.originalImage;
+                    if (await canLaunch(url)) {
+                      await launch(url);
+                    }
+                  }),
+            ),
+            Align(
+              alignment: Alignment.topRight,
+                          child: InkWell( //GestureDetector same
+                onTap: () {
+                  setState(() {
+                    fp.isFavorite = !fp.isFavorite;
+                  });
+                },
+                child: Icon(
+                  Icons.favorite,
+                  color: fp.isFavorite ? Colors.red : Colors.grey,
+                )),
+            ),
+            // Align(
+            //   alignment: Alignment.bottomRight,
+            //   child: IconButton(icon: Icon(Icons.favorite_border), onPressed: (){}))
+            // // SizedBox(
+            //   width: 120.0,
+            //   height: 120.0,
+            //   child: Align(
+            //     alignment: Alignment.center,
+            //     child: Checkbox(
+            //       value: fp.isFavorite,
+            //       onChanged: (bool value) {
+            //         setState(() {
+            //           fp.isFavorite = !fp.isFavorite;
+            //         });
+            //       },
+            //     ),
+            //   ),
+            // )
+          ]);
         },
         // note plus one
         childCount: widget.photos.length + 1,
@@ -80,5 +105,18 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
     );
 
     //});
+  }
+
+  Widget checkbox(String title, bool boolValue) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text(title),
+        Checkbox(
+          value: boolValue,
+          onChanged: (bool value) {},
+        )
+      ],
+    );
   }
 }

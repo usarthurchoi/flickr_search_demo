@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'consts.dart';
 
-class SearchResultSliverGrid extends StatelessWidget {
+class SearchResultSliverGrid extends StatefulWidget {
   final String searchTerm;
   final List<FlickrPhoto> photos;
   final ThumbnailSize thumbnailSize;
@@ -16,6 +16,11 @@ class SearchResultSliverGrid extends StatelessWidget {
       : super(key: key);
 
   @override
+  _SearchResultSliverGridState createState() => _SearchResultSliverGridState();
+}
+
+class _SearchResultSliverGridState extends State<SearchResultSliverGrid> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
@@ -26,38 +31,57 @@ class SearchResultSliverGrid extends StatelessWidget {
             floating: false,
             flexibleSpace: FlexibleSpaceBar(
               stretchModes: [StretchMode.zoomBackground],
-              title: Text(searchTerm),
+              title: Text(widget.searchTerm),
               background: Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
             ),
           ),
           SliverGrid(
             gridDelegate: new SliverGridDelegateWithMaxCrossAxisExtent(
               maxCrossAxisExtent:
-                  (thumbnailSize == ThumbnailSize.size100) ? 100 : 75,
+                  (widget.thumbnailSize == ThumbnailSize.size100) ? 100 : 75,
               mainAxisSpacing: 2.0,
               crossAxisSpacing: 2.0,
               childAspectRatio: 1.0,
             ),
             delegate: new SliverChildBuilderDelegate(
               (BuildContext context, int index) {
-                final photo = photos[index];
-                return Container(
-                  alignment: Alignment.center,
-                  child: GestureDetector(
-                      child: Image.network(
-                        photo.imageSmallSquare100,
-                        fit: BoxFit.cover,
+                final photo = widget.photos[index];
+                return Stack(
+                  children: [
+                    Container(
+                      alignment: Alignment.center,
+                      child: GestureDetector(
+                          child: Image.network(
+                            photo.imageSmallSquare100,
+                            fit: BoxFit.cover,
+                          ),
+                          onTap: () async {
+                            final url = photo.originalImage;
+                            print('passing $url');
+                            if (await canLaunch(url)) {
+                              await launch(url);
+                            }
+                          }),
+                    ),
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: InkWell(
+                        //GestureDetector same
+                        onTap: () {
+                          setState(() {
+                            photo.isFavorite = !photo.isFavorite;
+                          });
+                        },
+                        child: Icon(
+                          Icons.favorite,
+                          color: photo.isFavorite ? Colors.red : Colors.grey.withOpacity(0.6),
+                        ),
                       ),
-                      onTap: () async {
-                        final url = photo.originalImage;
-                        print('passing $url');
-                        if (await canLaunch(url)) {
-                          await launch(url);
-                        }
-                      }),
+                    ),
+                  ],
                 );
               },
-              childCount: photos.length,
+              childCount: widget.photos.length,
             ),
           ),
         ],
