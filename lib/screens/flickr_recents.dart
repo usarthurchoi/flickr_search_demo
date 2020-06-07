@@ -1,16 +1,14 @@
-import 'package:flickr_demo/blocs/recent_photo_bloc/recent_photo_bloc.dart';
-import 'package:flickr_demo/models/flickr_photo.dart';
+import './consts.dart';
+import '../blocs/recent_photo_bloc/recent_photo_bloc.dart';
+import '../models/flickr_photo.dart';
 import 'package:flutter/scheduler.dart';
-
 import '../screens/photo_gallery.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../blocs/flickr_bloc/flickr_bloc.dart';
 
 class FlickrRecentHome extends StatefulWidget {
-  FlickrRecentHome({Key key, this.title}) : super(key: key);
-
-  final String title;
+  final void Function(int) photoCountCallback;
+  FlickrRecentHome({Key key, this.photoCountCallback}) : super(key: key);
 
   @override
   _FlickrRecentHomeState createState() => _FlickrRecentHomeState();
@@ -20,28 +18,31 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
     with
         SingleTickerProviderStateMixin,
         AutomaticKeepAliveClientMixin<FlickrRecentHome> {
-  int _page;
-  int _page_size;
-  int _totalPhotos;
-  List<FlickrPhoto> _photos;
+  int _page = DEFAULT_START_PAGE;
+  int _page_size = DEFAULT_PER_PAGE;
+
+  List<FlickrPhoto> _photos = [];
+  double _lastOffset = 0;
 
   @override
   void initState() {
-    _page = 1;
-    _page_size = 100;
-    _totalPhotos = 0;
-    _photos = [];
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      // Issue the initial event for getting recent photos
       BlocProvider.of<RecentPhotoBloc>(context)
           .add(SearchFlickrPopular(page: _page, per_page: _page_size));
     });
   }
 
-  void fetchNextPage() {
+  /// callback for fetching the next page
+  void _fetchNextPage() {
     ++_page;
     BlocProvider.of<RecentPhotoBloc>(context)
         .add(SearchFlickrPopular(page: _page, per_page: _page_size));
+  }
+
+  void _notifyScrollOffset(double offset) {
+    _lastOffset = offset;
   }
 
   @override
@@ -49,32 +50,32 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
     return BlocListener<RecentPhotoBloc, RecentPhotoState>(
       listener: (context, state) {
         if (state is RecentsPhotoLoaded) {
-          print('detect listening FlickrRecentsLoaded...');
           setState(() {
             _photos.addAll(state.photos);
-            _totalPhotos = _photos.length + state.photos.length;
+            widget.photoCountCallback(_photos.length);
           });
         }
       },
       child: BlocBuilder<RecentPhotoBloc, RecentPhotoState>(
         builder: (context, state) {
           if (state is RecentsPhotoLoaded) {
-            print('building listening FlickrRecentsLoaded...');
-
             return PhotoGalleryView(
               photos: _photos,
-              nextPageFetchCallBack: fetchNextPage,
+              nextPageFetchCallBack: _fetchNextPage,
+              notifyScrollOffset: _notifyScrollOffset,
               thumbnailSize: ThumbnailSize.size75,
+              scrollOffset: _lastOffset, // Two sizes; 75 and 100
             );
           }
           if (state is RecentsPhotoLoading) {
             return Center(child: CircularProgressIndicator());
           }
           if (state is RecentsPhotoError) {
-            return Text(state.message);
+            return Center(child: Text(state.message, style: defaultErrorStyle));
           }
           if (state is RecentsPhotoEmpty) {
-            return Text('Search Flickr. Enjoy!');
+            return Center(
+                child: Text('Search Flickr. Enjoy!', style: defaultTitleStyle));
           }
         },
       ),

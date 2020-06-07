@@ -237,3 +237,5 @@ https://medium.com/flutter/slivers-demystified-6ff68ab0296f
 https://api.flutter.dev/flutter/widgets/SliverGrid-class.html
 
 https://www.flickr.com/services/api/misc.urls.html
+
+https://www.raywenderlich.com/4324124-responsive-design-for-flutter-getting-started

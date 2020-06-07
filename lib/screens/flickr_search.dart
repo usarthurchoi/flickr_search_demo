@@ -1,29 +1,36 @@
-import 'package:flickr_demo/models/flickr_photo.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:flickr_demo/screens/consts.dart';
 
+import '../models/flickr_photo.dart';
 import '../screens/photo_gallery.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/flickr_bloc/flickr_bloc.dart';
 
 class FlickrSearchHome extends StatefulWidget {
-  FlickrSearchHome({Key key}) : super(key: key);
+  final void Function(int) photoCountCallback;
+  FlickrSearchHome({Key key, this.photoCountCallback}) : super(key: key);
 
   @override
   _FlickrSearchHomeState createState() => _FlickrSearchHomeState();
 }
 
-// on AutomaticKeepAliveClientMixin
-// https://medium.com/@diegoveloper/flutter-persistent-tab-bars-a26220d322bc
-
 class _FlickrSearchHomeState extends State<FlickrSearchHome>
     with AutomaticKeepAliveClientMixin<FlickrSearchHome> {
+  ///
+  /// AutomaticKeepAliveClientMixin
+  /// https://medium.com/@diegoveloper/flutter-persistent-tab-bars-a26220d322bc
+  ///
+
+  Map<String, List<FlickrPhoto>> previousSearches =
+      Map<String, List<FlickrPhoto>>();
+
   String _term;
   int _page;
   int _page_size;
-  int _totalPhotos = 0;
   List<FlickrPhoto> _photos = [];
   TextEditingController _searchTextController = TextEditingController();
+
+  double _lastOffset = 0;
 
   void fetchNextPage() {
     ++_page;
@@ -31,28 +38,41 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
         .add(SearchFlickr(term: _term, page: _page, per_page: _page_size));
   }
 
+  void _saveSearch() {
+    previousSearches[_term] = _photos;
+  }
+
+  void _clearSearch() {
+    _term = '';
+    _page = DEFAULT_START_PAGE;
+    _page_size = DEFAULT_PER_PAGE;
+    _photos.removeRange(0, _photos.length);
+  }
+
+  void _notifyScrollOffset(double offset) {
+    _lastOffset = offset;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<FlickrBloc, FlickrState>(
       listener: (context, state) {
         if (state is FlickrLoaded) {
-          print('detect listening FlickrLoaded...');
           setState(() {
             _photos.addAll(state.photos);
-            _totalPhotos = _photos.length + state.photos.length;
+            widget.photoCountCallback(_photos.length);
           });
         }
       },
       child: _buildPhotoSearchForm(context),
     );
   }
-  //https://www.raywenderlich.com/4324124-responsive-design-for-flutter-getting-started
 
   Widget _buildPhotoSearchForm(BuildContext context) {
     // https://flutter.dev/docs/cookbook/design/orientation
     return OrientationBuilder(builder: (context, orientation) {
       print('from _buildPhotoSearchForm, Orientation changed: $orientation');
-      //SchedulerBinding.instance.ensureVisualUpdate();
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -72,39 +92,40 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8)))),
               onSubmitted: (term) {
-                setState(() {
-                  _term = term;
-                  _page = 1;
-                  _page_size = 100;
-
-                  _photos.removeRange(0, _photos.length);
-                });
-
-                BlocProvider.of<FlickrBloc>(context).add(SearchFlickr(
-                    term: _term, page: _page, per_page: _page_size));
+                _clearSearch();
+                // Add a search event with a new term
+                BlocProvider.of<FlickrBloc>(context).add(
+                  SearchFlickr(
+                    term: _term,
+                    page: _page,
+                    per_page: _page_size,
+                  ),
+                );
               },
             ),
           ),
           BlocBuilder<FlickrBloc, FlickrState>(
             builder: (context, state) {
               if (state is FlickrLoaded) {
-                print('building listening FlickrLoaded...');
-
                 return Expanded(
                   child: PhotoGalleryView(
+                    notifyScrollOffset: _notifyScrollOffset,
+                    scrollOffset: _lastOffset,
                     photos: _photos,
                     nextPageFetchCallBack: fetchNextPage,
                   ),
                 );
               }
               if (state is FlickrLoading) {
-                return Center(child: CircularProgressIndicator());
+                return Expanded(
+                    child: Center(child: CircularProgressIndicator()));
               }
               if (state is FlickrError) {
-                return Text(state.message);
+                return Expanded(child: Center(child: Text(state.message)));
               }
               if (state is FlickrEmpty) {
-                return Text('Search Flickr. Enjoy!');
+                return Expanded(
+                    child: Center(child: Text('Search Flickr. Enjoy!')));
               } else {
                 return Container();
               }
