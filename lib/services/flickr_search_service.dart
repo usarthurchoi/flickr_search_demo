@@ -39,8 +39,8 @@ class FlickrSearchService {
     
     // Number of photos to return per page. If this argument is omitted,
     // it defaults to 100. The maximum allowed value is 500.
-    //final url = _searchEndPoint(term: term, page: page, per_page: per_page);
-    final url = _popularEndPoint(page: page, per_page: per_page);
+    final url = _searchEndPoint(term: term, page: page, per_page: per_page);
+    //final url = _popularEndPoint(page: page, per_page: per_page);
     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
     final response = await http.get(url);

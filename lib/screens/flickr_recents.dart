@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FlickrRecentHome extends StatefulWidget {
-  final void Function(int) photoCountCallback;
-  FlickrRecentHome({Key key, this.photoCountCallback}) : super(key: key);
+  
+  FlickrRecentHome({Key key}) : super(key: key);
 
   @override
   _FlickrRecentHomeState createState() => _FlickrRecentHomeState();
@@ -23,6 +23,7 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
 
   List<FlickrPhoto> _photos = [];
   double _lastOffset = 0;
+  ScrollController _controller;
 
   @override
   void initState() {
@@ -32,17 +33,15 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
       BlocProvider.of<RecentPhotoBloc>(context)
           .add(SearchFlickrPopular(page: _page, per_page: _page_size));
     });
+    // Note To control the initial scroll offset of the scroll view, provide a
+    // controller with its ScrollController.initialScrollOffset property set.
+    
   }
 
-  /// callback for fetching the next page
-  void _fetchNextPage() {
-    ++_page;
-    BlocProvider.of<RecentPhotoBloc>(context)
-        .add(SearchFlickrPopular(page: _page, per_page: _page_size));
-  }
-
-  void _notifyScrollOffset(double offset) {
-    _lastOffset = offset;
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
   }
 
   @override
@@ -52,30 +51,64 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
         if (state is RecentsPhotoLoaded) {
           setState(() {
             _photos.addAll(state.photos);
-            widget.photoCountCallback(_photos.length);
+            //widget.photoCountCallback(_photos.length);
           });
         }
       },
       child: BlocBuilder<RecentPhotoBloc, RecentPhotoState>(
         builder: (context, state) {
           if (state is RecentsPhotoLoaded) {
-            return PhotoGalleryView(
-              photos: _photos,
-              nextPageFetchCallBack: _fetchNextPage,
-              notifyScrollOffset: _notifyScrollOffset,
-              thumbnailSize: ThumbnailSize.size75,
-              scrollOffset: _lastOffset, // Two sizes; 75 and 100
+            print('BlocBuild lastoffset is $_lastOffset');
+            _controller?.dispose();
+    _controller = ScrollController(initialScrollOffset: _lastOffset);
+
+            return NotificationListener<ScrollNotification>(
+              onNotification: (scrollNotification) {
+                if (scrollNotification is ScrollStartNotification) {
+                  _onStartScroll(scrollNotification.metrics);
+                } else if (scrollNotification is ScrollUpdateNotification) {
+                  _onUpdateScroll(scrollNotification.metrics);
+                } else if (scrollNotification is ScrollEndNotification) {
+                  _onEndScroll(scrollNotification.metrics);
+                }
+              },
+              child: CustomScrollView(
+                controller: _controller,
+                slivers: [
+                  SliverAppBar(
+                    expandedHeight: 200,
+                    pinned: true,
+                    floating: false,
+                    flexibleSpace: FlexibleSpaceBar(
+                      stretchModes: [StretchMode.zoomBackground],
+                      title: Text('#${_photos.length}'),
+                      background:
+                          Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
+                    ),
+                  ),
+                  PhotoGalleryView(
+                    photos: _photos,
+                    nextPageFetchCallBack: _fetchNextPage,
+                    notifyScrollOffset: _notifyScrollOffset,
+                    thumbnailSize: ThumbnailSize.size75,
+                    // Two sizes; 75 and 100
+                  ),
+                ],
+              ),
             );
           }
           if (state is RecentsPhotoLoading) {
-            return Center(child: CircularProgressIndicator());
+            return _screenWith(Center(child: CircularProgressIndicator()));
+            //return Center(child: CircularProgressIndicator());
           }
           if (state is RecentsPhotoError) {
-            return Center(child: Text(state.message, style: defaultErrorStyle));
+            return _screenWith(
+                Center(child: Text(state.message, style: defaultErrorStyle)));
           }
           if (state is RecentsPhotoEmpty) {
-            return Center(
-                child: Text('Search Flickr. Enjoy!', style: defaultTitleStyle));
+            return _screenWith(Center(
+                child:
+                    Text('Search Flickr. Enjoy!', style: defaultTitleStyle)));
           }
         },
       ),
@@ -84,4 +117,55 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
 
   @override
   bool get wantKeepAlive => true;
+
+  _onStartScroll(ScrollMetrics metrics) {
+    // setState(() {
+    //   message = "Scroll Start";
+    // });
+     //print('_onStartScroll lastoffset = $_lastOffset  _controller.offset ${_controller.offset}');
+  }
+  _onUpdateScroll(ScrollMetrics metrics) {
+    // setState(() {
+    //   message = "Scroll Update";
+    // });
+     //print('_onUpdateScroll lastoffset = $_lastOffset  _controller.offset ${_controller.offset}');
+  }
+  _onEndScroll(ScrollMetrics metrics) {
+    // setState(() {
+    //   message = "Scroll End";
+    // });
+    //_lastOffset = _controller.offset;
+   // print('_onEndScroll lastoffset = $_lastOffset  _controller.offset ${_controller.offset}');
+  }
+
+  /// callback for fetching the next page
+  void _fetchNextPage() {
+    ++_page;
+    BlocProvider.of<RecentPhotoBloc>(context)
+        .add(SearchFlickrPopular(page: _page, per_page: _page_size));
+  }
+
+  void _notifyScrollOffset() {
+      _lastOffset = _controller.position.maxScrollExtent;
+  }
+
+  Widget _screenWith(Widget child) {
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          expandedHeight: 200,
+          pinned: true,
+          floating: false,
+          flexibleSpace: FlexibleSpaceBar(
+            stretchModes: [StretchMode.zoomBackground],
+            //title: Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
+            background: Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
+          ),
+        ),
+        SliverFillRemaining(
+          child: child,
+        ),
+      ],
+    );
+  }
 }

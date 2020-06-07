@@ -4,42 +4,47 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'consts.dart';
 
-class PhotoGalleryView extends StatefulWidget {
-  
+class PhotoGalleryGridView extends StatefulWidget {
+  final double scrollOffset;
   final ThumbnailSize thumbnailSize;
   final void Function() nextPageFetchCallBack;
   final void Function() notifyScrollOffset;
   final List<FlickrPhoto> photos;
 
-  PhotoGalleryView(
+  PhotoGalleryGridView(
       {Key key,
       @required this.photos,
       @required this.nextPageFetchCallBack,
       @required this.notifyScrollOffset,
-      
+      this.scrollOffset = 0.0,
       this.thumbnailSize = ThumbnailSize.size100})
       : super(key: key);
 
   @override
-  _PhotoGalleryViewState createState() => _PhotoGalleryViewState();
+  _PhotoGalleryGridViewState createState() => _PhotoGalleryGridViewState();
 }
 
 // https://flutter.dev/docs/cookbook/design/orientation
-class _PhotoGalleryViewState extends State<PhotoGalleryView> {
-  
+class _PhotoGalleryGridViewState extends State<PhotoGalleryGridView> {
+  //ScrollController _controller;
 
   @override
   void initState() {
     print('initstate ${DateTime.now()}');
-    
+    // Note To control the initial scroll offset of the scroll view, provide a
+    // controller with its ScrollController.initialScrollOffset property set.
+   // _controller = ScrollController(initialScrollOffset: widget.scrollOffset);
     super.initState();
   }
 
- 
+  @override
+  void dispose() {
+   // _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    //return OrientationBuilder(builder: (context, orientation) {
     return SliverGrid(
       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: (widget.thumbnailSize == ThumbnailSize.size100)
@@ -78,7 +83,5 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
         childCount: widget.photos.length + 1,
       ),
     );
-
-    //});
   }
 }

@@ -8,7 +8,7 @@ import './blocs/simple_bloc_delegate.dart';
 
 void main() {
   // SimpleBlocDelegate - https://pub.dev/packages/flutter_bloc 
-  BlocSupervisor.delegate = SimpleBlocDelegate();
+  //BlocSupervisor.delegate = SimpleBlocDelegate();
   
   runApp(MultiBlocProvider(
     providers: [
