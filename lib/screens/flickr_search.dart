@@ -5,9 +5,9 @@ import '../screens/photo_gallery.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/flickr_bloc/flickr_bloc.dart';
+import 'search_history.dart';
 
 class FlickrSearchHome extends StatefulWidget {
- 
   FlickrSearchHome({Key key}) : super(key: key);
 
   @override
@@ -32,7 +32,7 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
   ScrollController _controller;
   double _lastOffset = 0;
 
-@override
+  @override
   void dispose() {
     _controller?.dispose();
     super.dispose();
@@ -44,13 +44,33 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
         .add(SearchFlickr(term: _term, page: _page, per_page: _page_size));
   }
 
+  ///deep copy
+  List<FlickrPhoto> _deepCopy(List<FlickrPhoto>  orginal) {
+    List<FlickrPhoto> copyList = [];
+    for (var item in orginal) {
+      FlickrPhoto fp = new FlickrPhoto(
+          id: item.id,
+          owner: item.owner,
+          originalImageLink: item.originalImageLink,
+          secret: item.secret,
+          server: item.server,
+          farm: item.farm,
+          title: item.title,
+          );
+      copyList.add(fp);
+    }
+    return copyList;
+  }
+
   void _saveSearch() {
-    previousSearches[_term] = _photos;
+    print('saving term: $_term...');
+    previousSearches[_term] =_deepCopy(_photos);
   }
 
   void _clearSearch() {
     if (_term != null && _term.isNotEmpty) {
-      previousSearches[_term] = _photos;
+      //previousSearches[_term] = _photos;
+         _saveSearch();
     }
     _term = '';
     _page = DEFAULT_START_PAGE;
@@ -59,7 +79,7 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
   }
 
   void _notifyScrollOffset() {
-      _lastOffset = _controller.position.maxScrollExtent;
+    _lastOffset = _controller.position.maxScrollExtent;
   }
 
   @override
@@ -81,9 +101,9 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
     return BlocBuilder<FlickrBloc, FlickrState>(
       builder: (context, state) {
         if (state is FlickrLoaded) {
-           print('Serch BlocBuild lastoffset is $_lastOffset');
-            _controller?.dispose();
-    _controller = ScrollController(initialScrollOffset: _lastOffset);
+          print('Serch BlocBuild lastoffset is $_lastOffset');
+          _controller?.dispose();
+          _controller = ScrollController(initialScrollOffset: _lastOffset);
           return CustomScrollView(
             controller: _controller,
             slivers: [
@@ -97,6 +117,14 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
                   background:
                       Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
                 ),
+                actions: [
+                  IconButton(
+                    icon: Icon(Icons.photo_album),
+                    onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => SearchHistory(previousSearches: previousSearches),
+                    )),
+                  ),
+                ],
               ),
               SliverToBoxAdapter(
                 child: SizedBox(
@@ -106,7 +134,6 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
               ),
               PhotoGalleryView(
                 notifyScrollOffset: _notifyScrollOffset,
-               
                 photos: _photos,
                 nextPageFetchCallBack: fetchNextPage,
               ),
@@ -152,6 +179,9 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
                 borderRadius: BorderRadius.all(Radius.circular(8)))),
         onSubmitted: (term) {
           _clearSearch();
+
+// REST the scroll offset
+          _lastOffset = 0;
 
           _term = term;
           // Add a search event with a new term

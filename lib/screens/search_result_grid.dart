@@ -17,33 +17,50 @@ class SearchResultSliverGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverGrid(
-      gridDelegate: new SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: (thumbnailSize == ThumbnailSize.size100) ? 100 : 75,
-        mainAxisSpacing: 2.0,
-        crossAxisSpacing: 2.0,
-        childAspectRatio: 1.0,
-      ),
-      delegate: new SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
-          final photo = photos[index];
-          return Container(
-            alignment: Alignment.center,
-            child: GestureDetector(
-                child: Image.network(
-                  photo.imageSmallSquare100,
-                  fit: BoxFit.cover,
-                ),
-                onTap: () async {
-                  final url = photo.originalImage;
-                  print('passing $url');
-                  if (await canLaunch(url)) {
-                    await launch(url);
-                  }
-                }),
-          );
-        },
-        childCount: photos.length,
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 200,
+            pinned: true,
+            floating: false,
+            flexibleSpace: FlexibleSpaceBar(
+              stretchModes: [StretchMode.zoomBackground],
+              title: Text(searchTerm),
+              background: Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
+            ),
+          ),
+          SliverGrid(
+            gridDelegate: new SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent:
+                  (thumbnailSize == ThumbnailSize.size100) ? 100 : 75,
+              mainAxisSpacing: 2.0,
+              crossAxisSpacing: 2.0,
+              childAspectRatio: 1.0,
+            ),
+            delegate: new SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                final photo = photos[index];
+                return Container(
+                  alignment: Alignment.center,
+                  child: GestureDetector(
+                      child: Image.network(
+                        photo.imageSmallSquare100,
+                        fit: BoxFit.cover,
+                      ),
+                      onTap: () async {
+                        final url = photo.originalImage;
+                        print('passing $url');
+                        if (await canLaunch(url)) {
+                          await launch(url);
+                        }
+                      }),
+                );
+              },
+              childCount: photos.length,
+            ),
+          ),
+        ],
       ),
     );
   }
