@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'favorite_photos.dart';
 import 'flickr_recents.dart';
 import 'flickr_search.dart';
 
@@ -14,7 +15,7 @@ class _FlickrHomeState extends State<FlickrHome> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         bottomNavigationBar: Opacity(
           opacity: 0.9,
@@ -26,6 +27,12 @@ class _FlickrHomeState extends State<FlickrHome> {
                 tabs: [
                   Tab(icon: Icon(Icons.watch), text: 'Recent'),
                   Tab(icon: Icon(Icons.search), text: 'Search'),
+                  Tab(
+                      icon: Icon(
+                        Icons.favorite,
+                        color: Colors.red,
+                      ),
+                      text: 'Favorites'),
                 ]),
           ),
         ),
@@ -33,6 +40,7 @@ class _FlickrHomeState extends State<FlickrHome> {
           children: [
             FlickrRecentHome(),
             FlickrSearchHome(),
+            FavoritePhotos(),
           ],
         ),
       ),

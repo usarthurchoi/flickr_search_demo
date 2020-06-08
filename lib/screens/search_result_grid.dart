@@ -10,7 +10,7 @@ class SearchResultSliverGrid extends StatefulWidget {
   final ThumbnailSize thumbnailSize;
   const SearchResultSliverGrid(
       {Key key,
-      @required this.searchTerm,
+      this.searchTerm = 'Favorites',
       @required this.photos,
       this.thumbnailSize = ThumbnailSize.size100})
       : super(key: key);

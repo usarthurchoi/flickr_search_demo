@@ -1,3 +1,4 @@
+import 'package:flickr_demo/database/favorite_photos_dao.dart';
 import 'package:flickr_demo/models/flickr_photo.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,6 +25,8 @@ class PhotoGalleryView extends StatefulWidget {
 
 // https://flutter.dev/docs/cookbook/design/orientation
 class _PhotoGalleryViewState extends State<PhotoGalleryView> {
+  final _dao = FavoritePhotosDao();
+  
   @override
   void initState() {
     print('initstate ${DateTime.now()}');
@@ -50,17 +53,17 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
             widget.notifyScrollOffset();
             return Container(width: 100, height: 100, color: Colors.yellow);
           }
-          final fp = widget.photos[index];
+          final photo = widget.photos[index];
           return Stack(children: [
             Container(
               alignment: Alignment.center,
               child: GestureDetector(
                   child: Image.network(
-                    fp.imageSmallSquare100,
+                    photo.imageSmallSquare100,
                     fit: BoxFit.cover,
                   ),
                   onTap: () async {
-                    final url = fp.originalImage;
+                    final url = photo.originalImage;
                     if (await canLaunch(url)) {
                       await launch(url);
                     }
@@ -68,35 +71,36 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
             ),
             Align(
               alignment: Alignment.topRight,
-                          child: InkWell( //GestureDetector same
-                onTap: () {
-                  setState(() {
-                    fp.isFavorite = !fp.isFavorite;
-                  });
-                },
-                child: Icon(
-                  Icons.favorite,
-                  color: fp.isFavorite ? Colors.red : Colors.grey,
-                )),
+              child: InkWell(
+                  //GestureDetector same
+                  onTap: () async {
+                    setState(() {
+                      photo.isFavorite = !photo.isFavorite;
+                    });
+                    if (await _dao.contains(photo)) {
+                      print('DAO contain the photo...');
+                      if (photo.isFavorite == false) {
+                         print('delete the photo...');
+                        await _dao.delete(photo);
+                      } else {
+                         print('insert the photo...');
+                        await _dao.insert(photo);
+                      }
+                    } else {
+                       print('DAO NOT contain the photo...photo.isFavorite ${photo.isFavorite}');
+                      if (photo.isFavorite == true) {
+                        print('insert the photo...');
+                        await _dao.insert(photo);
+                      }
+                    }
+                  },
+                  child: Icon(
+                    Icons.favorite,
+                    color: photo.isFavorite
+                        ? Colors.red
+                        : Colors.grey.withOpacity(0.6),
+                  )),
             ),
-            // Align(
-            //   alignment: Alignment.bottomRight,
-            //   child: IconButton(icon: Icon(Icons.favorite_border), onPressed: (){}))
-            // // SizedBox(
-            //   width: 120.0,
-            //   height: 120.0,
-            //   child: Align(
-            //     alignment: Alignment.center,
-            //     child: Checkbox(
-            //       value: fp.isFavorite,
-            //       onChanged: (bool value) {
-            //         setState(() {
-            //           fp.isFavorite = !fp.isFavorite;
-            //         });
-            //       },
-            //     ),
-            //   ),
-            // )
           ]);
         },
         // note plus one
@@ -106,6 +110,8 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
 
     //});
   }
+
+  
 
   Widget checkbox(String title, bool boolValue) {
     return Column(

@@ -1,3 +1,4 @@
+import 'package:flickr_demo/blocs/favorite_photo_bloc/favorite_photo_bloc.dart';
 import 'package:flickr_demo/screens/consts.dart';
 
 import '../models/flickr_photo.dart';

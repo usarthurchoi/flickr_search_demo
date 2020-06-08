@@ -1,6 +1,10 @@
 import 'package:equatable/equatable.dart';
+import 'package:uuid/uuid.dart';
+
+final Uuid _uuid = Uuid();
 
 class FlickrPhoto {
+  String uuid;
   final String id;
   final String owner;
   final String secret;
@@ -12,6 +16,7 @@ class FlickrPhoto {
   bool isFavorite;
 
   FlickrPhoto({
+    this.uuid,
     this.id,
     this.owner,
     this.secret,
@@ -20,18 +25,37 @@ class FlickrPhoto {
     this.title,
     this.originalImageLink,
     this.isFavorite = false,
-  });
+  }) {
+    if (uuid == null) {
+      uuid = _uuid.v4();
+    }
+  }
 
   @override
-  int get hashCode => id.hashCode;
+  int get hashCode => uuid.hashCode;
 
   @override
   String toString() {
-    return 'FlickrPhoto $id';
+    return 'FlickrPhoto $uuid';
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'uuid': uuid,
+      'id': id,
+      'owner': owner,
+      'secret': secret,
+      'server': server,
+      'farm': farm,
+      'title':title,
+      'originalImageLink': originalImageLink,
+      'isFavorite': isFavorite,
+    };
   }
 
   static FlickrPhoto fromJson(Map<String, dynamic> json) {
     return FlickrPhoto(
+      uuid: json['uuid'] ?? _uuid.v4(),
       title: json['title'] ?? '',
       id: json['id'],
       owner: json['owner'],
@@ -39,6 +63,7 @@ class FlickrPhoto {
       farm: json['farm'],
       server: json['server'],
       originalImageLink: json['url_o'],
+      isFavorite: json['isFavorite'] ?? false,
     );
   }
 

@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import './blocs/flickr_bloc/flickr_bloc.dart';
 import './blocs/simple_bloc_delegate.dart';
+import 'blocs/favorite_photo_bloc/favorite_photo_bloc.dart';
 
 void main() {
-  // SimpleBlocDelegate - https://pub.dev/packages/flutter_bloc 
+  // SimpleBlocDelegate - https://pub.dev/packages/flutter_bloc
   //BlocSupervisor.delegate = SimpleBlocDelegate();
-  
+
   runApp(MultiBlocProvider(
     providers: [
       BlocProvider(
