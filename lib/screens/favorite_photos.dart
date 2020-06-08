@@ -75,20 +75,21 @@ Widget _buildGrid(List<FlickrPhoto> photos) {
                 },
               ),
             ),
-            Align(
-              alignment: Alignment.topRight,
-              child: InkWell(
-                //GestureDetector same
-                onTap: () {
-                  BlocProvider.of<FavoritePhotoBloc>(context)
-                      .add(DeleteFavoritePhoto(photo: photo));
-                },
-                child: Icon(
-                  Icons.delete,
-                  color: Colors.deepOrange.withOpacity(0.8),
-                ),
-              ),
-            ),
+            // DO Not allow delete from here
+            // Align(
+            //   alignment: Alignment.topRight,
+            //   child: InkWell(
+            //     //GestureDetector same
+            //     onTap: () {
+            //       BlocProvider.of<FavoritePhotoBloc>(context)
+            //           .add(DeleteFavoritePhoto(photo: photo));
+            //     },
+            //     child: Icon(
+            //       Icons.delete,
+            //       color: Colors.deepOrange.withOpacity(0.8),
+            //     ),
+            //   ),
+            // ),
           ],
         );
       },

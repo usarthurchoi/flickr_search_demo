@@ -24,7 +24,6 @@ class FavoritePhotoBloc extends Bloc<FavoritePhotoEvent, FavoritePhotoState> {
     }
     if (event is AddFavoritePhoto) {
       await _dao.insert(event.photo);
-      //yield FavoriteAdded(photo: event.photo);
       yield* _reloadFavorites();
     }
     if (event is UpdateFavoritePhoto) {
@@ -33,7 +32,6 @@ class FavoritePhotoBloc extends Bloc<FavoritePhotoEvent, FavoritePhotoState> {
     }
     if (event is DeleteFavoritePhoto) {
       await _dao.delete(event.photo);
-      //yield FavoriteRemoved(photo: event.photo);
       yield* _reloadFavorites();
     }
   }

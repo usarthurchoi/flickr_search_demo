@@ -1,6 +1,8 @@
+import 'package:flickr_demo/blocs/favorite_photo_bloc/favorite_photo_bloc.dart';
 import 'package:flickr_demo/database/favorite_photos_dao.dart';
 import 'package:flickr_demo/models/flickr_photo.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'consts.dart';
@@ -26,7 +28,7 @@ class PhotoGalleryView extends StatefulWidget {
 // https://flutter.dev/docs/cookbook/design/orientation
 class _PhotoGalleryViewState extends State<PhotoGalleryView> {
   final _dao = FavoritePhotosDao();
-  
+
   @override
   void initState() {
     print('initstate ${DateTime.now()}');
@@ -80,14 +82,15 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
                     if (await _dao.contains(photo)) {
                       print('DAO contain the photo...');
                       if (photo.isFavorite == false) {
-                         print('delete the photo...');
+                        print('delete the photo...');
                         await _dao.delete(photo);
                       } else {
-                         print('insert the photo...');
+                        print('insert the photo...');
                         await _dao.insert(photo);
                       }
                     } else {
-                       print('DAO NOT contain the photo...photo.isFavorite ${photo.isFavorite}');
+                      print(
+                          'DAO NOT contain the photo...photo.isFavorite ${photo.isFavorite}');
                       if (photo.isFavorite == true) {
                         print('insert the photo...');
                         await _dao.insert(photo);
@@ -107,11 +110,7 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
         childCount: widget.photos.length + 1,
       ),
     );
-
-    //});
   }
-
-  
 
   Widget checkbox(String title, bool boolValue) {
     return Column(
