@@ -51,61 +51,74 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
             _photos.addAll(state.photos);
             //widget.photoCountCallback(_photos.length);
           });
-        }
+        } else if (state is RecentsPhotoError) {
+          Scaffold.of(context).showSnackBar(SnackBar(
+            content: Text(state.message),
+          ));
+        } 
+        // else if (state is RecentsPhotoLoading) {
+        //   Scaffold.of(context).showSnackBar(SnackBar(
+        //     content: Text('currently ${_photos.length} photos, Loading next page...'),
+        //   ));
+        // }
       },
       child: BlocBuilder<RecentPhotoBloc, RecentPhotoState>(
         builder: (context, state) {
-          if (state is RecentsPhotoLoaded) {
-            _controller?.dispose();
-            _controller = ScrollController(initialScrollOffset: _lastOffset);
-            return NotificationListener<ScrollNotification>(
-              onNotification: (scrollNotification) {
-                if (scrollNotification is ScrollStartNotification) {
-                  _onStartScroll(scrollNotification.metrics);
-                } else if (scrollNotification is ScrollUpdateNotification) {
-                  _onUpdateScroll(scrollNotification.metrics);
-                } else if (scrollNotification is ScrollEndNotification) {
-                  _onEndScroll(scrollNotification.metrics);
-                }
-              },
-              child: CustomScrollView(
-                controller: _controller,
-                slivers: [
-                  SliverAppBar(
-                    expandedHeight: 200,
-                    pinned: true,
-                    floating: false,
-                    flexibleSpace: FlexibleSpaceBar(
-                      stretchModes: [StretchMode.zoomBackground],
-                      title: Text('#${_photos.length}'),
-                      background:
-                          Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
-                    ),
+          //if (state is RecentsPhotoLoaded) {
+          _controller?.dispose();
+          _controller = ScrollController(initialScrollOffset: _lastOffset);
+          return NotificationListener<ScrollNotification>(
+            onNotification: (scrollNotification) {
+              if (scrollNotification is ScrollStartNotification) {
+                _onStartScroll(scrollNotification.metrics);
+              } else if (scrollNotification is ScrollUpdateNotification) {
+                _onUpdateScroll(scrollNotification.metrics);
+              } else if (scrollNotification is ScrollEndNotification) {
+                _onEndScroll(scrollNotification.metrics);
+              }
+            },
+            child: CustomScrollView(
+              controller: _controller,
+              slivers: [
+                SliverAppBar(
+                  expandedHeight: 200,
+                  pinned: true,
+                  floating: false,
+                  flexibleSpace: FlexibleSpaceBar(
+                    stretchModes: [StretchMode.zoomBackground],
+                    title: Text('#${_photos.length}'),
+                    background:
+                        Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
                   ),
-                  PhotoGalleryView(
-                    photos: _photos,
-                    nextPageFetchCallBack: _fetchNextPage,
-                    notifyScrollOffset: _notifyScrollOffset,
-                    thumbnailSize: ThumbnailSize.size75,
-                    // Two sizes; 75 and 100
-                  ),
-                ],
-              ),
-            );
-          }
-          if (state is RecentsPhotoLoading) {
-            return _screenWith(Center(child: CircularProgressIndicator()));
-            //return Center(child: CircularProgressIndicator());
-          }
-          if (state is RecentsPhotoError) {
-            return _screenWith(
-                Center(child: Text(state.message, style: defaultErrorStyle)));
-          }
-          if (state is RecentsPhotoEmpty) {
-            return _screenWith(Center(
-                child:
-                    Text('Search Flickr. Enjoy!', style: defaultTitleStyle)));
-          }
+                ),
+                (_photos.length > 0)
+                    ? PhotoGalleryView(
+                        photos: _photos,
+                        nextPageFetchCallBack: _fetchNextPage,
+                        notifyScrollOffset: _notifyScrollOffset,
+                        thumbnailSize: ThumbnailSize.size75,
+                        // Two sizes; 75 and 100
+                      )
+                    : SliverFillRemaining(
+                        child: Container(),
+                      ),
+              ],
+            ),
+          );
+          // }
+          // if (state is RecentsPhotoLoading) {
+          //   return _screenWith(Center(child: CircularProgressIndicator()));
+          //   //return Center(child: CircularProgressIndicator());
+          // }
+          // if (state is RecentsPhotoError) {
+          //   return _screenWith(
+          //       Center(child: Text(state.message, style: defaultErrorStyle)));
+          // }
+          // if (state is RecentsPhotoEmpty) {
+          //   return _screenWith(Center(
+          //       child:
+          //           Text('Search Flickr. Enjoy!', style: defaultTitleStyle)));
+          // }
         },
       ),
     );

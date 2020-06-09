@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/flickr_bloc/flickr_bloc.dart';
 import 'search_history.dart';
+import 'dart:math' as math;
 
 class FlickrSearchHome extends StatefulWidget {
   FlickrSearchHome({Key key}) : super(key: key);
@@ -92,6 +93,10 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
             _photos.addAll(state.photos);
             //widget.photoCountCallback(_photos.length);
           });
+        } else if (state is FlickrError) {
+          Scaffold.of(context).showSnackBar(SnackBar(
+            content: Text(state.message),
+          ));
         }
       },
       child: _buildPhotoSearchForm(context),
@@ -101,61 +106,57 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
   Widget _buildPhotoSearchForm(BuildContext context) {
     return BlocBuilder<FlickrBloc, FlickrState>(
       builder: (context, state) {
-        if (state is FlickrLoaded) {
-          _controller?.dispose();
-          _controller = ScrollController(initialScrollOffset: _lastOffset);
-          return CustomScrollView(
-            controller: _controller,
-            slivers: [
-              SliverAppBar(
-                expandedHeight: 200,
-                pinned: true,
-                floating: false,
-                flexibleSpace: FlexibleSpaceBar(
-                  stretchModes: [StretchMode.zoomBackground],
-                  title: Text('#${_photos.length}'),
-                  background:
-                      Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
+        //if (state is FlickrLoaded) {
+        _controller?.dispose();
+        _controller = ScrollController(initialScrollOffset: _lastOffset);
+        return CustomScrollView(
+          controller: _controller,
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 200,
+              pinned: true,
+              floating: false,
+              flexibleSpace: FlexibleSpaceBar(
+                stretchModes: [StretchMode.zoomBackground],
+                title: Text('#${_photos.length}'),
+                background: Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.photo_album),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) =>
+                        SearchHistory(previousSearches: previousSearches),
+                  )),
                 ),
-                actions: [
-                  IconButton(
-                    icon: Icon(Icons.photo_album),
-                    onPressed: () =>
-                        Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) =>
-                          SearchHistory(previousSearches: previousSearches),
-                    )),
+              ],
+            ),
+            SliverPersistentHeader(
+              floating: false,
+              pinned: true,
+              delegate: _SearchBarHeaderDelegate(
+                minHeight: 60.0,
+                maxHeight: 70.0,
+                child: _textEntry(),
+              ),
+            ),
+            // SliverToBoxAdapter(
+            //   child: SizedBox(
+            //     height: 70,
+            //     child: _textEntry(),
+            //   ),
+            // ),
+            (_photos.length > 0)
+                ? PhotoGalleryView(
+                    notifyScrollOffset: _notifyScrollOffset,
+                    photos: _photos,
+                    nextPageFetchCallBack: fetchNextPage,
+                  )
+                : SliverFillRemaining(
+                    child: Container(),
                   ),
-                ],
-              ),
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 70,
-                  child: _textEntry(),
-                ),
-              ),
-              PhotoGalleryView(
-                notifyScrollOffset: _notifyScrollOffset,
-                photos: _photos,
-                nextPageFetchCallBack: fetchNextPage,
-              ),
-            ],
-          );
-        }
-        if (state is FlickrLoading) {
-          return _screenWith(
-              Expanded(child: Center(child: CircularProgressIndicator())));
-        }
-        if (state is FlickrError) {
-          return _screenWith(
-              Expanded(child: Center(child: Text(state.message))));
-        }
-        if (state is FlickrEmpty) {
-          return _screenWith(
-              Expanded(child: Center(child: Text('Search Flickr. Enjoy!'))));
-        } else {
-          return Container();
-        }
+          ],
+        );
       },
     );
   }
@@ -182,7 +183,7 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
         onSubmitted: (term) {
           _clearSearch();
 
-// REST the scroll offset
+          // REST the scroll offset
           _lastOffset = 0;
 
           _term = term;
@@ -198,29 +199,35 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
       ),
     );
   }
+}
 
-  Widget _screenWith(Widget child) {
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 200,
-          pinned: true,
-          floating: false,
-          flexibleSpace: FlexibleSpaceBar(
-            stretchModes: [StretchMode.zoomBackground],
-            //title: Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
-            background: Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
-          ),
-        ),
-        SliverFillRemaining(
-          child: Column(
-            children: [
-              _textEntry(),
-              child,
-            ],
-          ),
-        ),
-      ],
-    );
+class _SearchBarHeaderDelegate extends SliverPersistentHeaderDelegate {
+  _SearchBarHeaderDelegate({
+    @required this.minHeight,
+    @required this.maxHeight,
+    @required this.child,
+  });
+
+  final double minHeight;
+  final double maxHeight;
+  final Widget child;
+
+  @override
+  double get minExtent => minHeight;
+
+  @override
+  double get maxExtent => math.max(maxHeight, minHeight);
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return new SizedBox.expand(child: child);
+  }
+
+  @override
+  bool shouldRebuild(_SearchBarHeaderDelegate oldDelegate) {
+    return maxHeight != oldDelegate.maxHeight ||
+        minHeight != oldDelegate.minHeight ||
+        child != oldDelegate.child;
   }
 }

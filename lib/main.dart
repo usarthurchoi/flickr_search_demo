@@ -23,6 +23,7 @@ void main() {
       ),
     ],
     child: MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flickr Demo',
       theme: ThemeData(
           primarySwatch: Colors.deepOrange,

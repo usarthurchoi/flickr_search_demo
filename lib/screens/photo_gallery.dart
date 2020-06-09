@@ -46,7 +46,13 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
             widget.nextPageFetchCallBack();
             // Notify the scroll offset
             widget.notifyScrollOffset();
-            return Container(width: 100, height: 100, color: Colors.yellow);
+            return Container(
+              width: 100,
+              height: 100,
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
           }
           final photo = widget.photos[index];
           return Stack(children: [
