@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FlickrRecentHome extends StatefulWidget {
-  
   FlickrRecentHome({Key key}) : super(key: key);
 
   @override
@@ -35,7 +34,6 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
     });
     // Note To control the initial scroll offset of the scroll view, provide a
     // controller with its ScrollController.initialScrollOffset property set.
-    
   }
 
   @override
@@ -58,10 +56,8 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
       child: BlocBuilder<RecentPhotoBloc, RecentPhotoState>(
         builder: (context, state) {
           if (state is RecentsPhotoLoaded) {
-            print('BlocBuild lastoffset is $_lastOffset');
             _controller?.dispose();
-    _controller = ScrollController(initialScrollOffset: _lastOffset);
-
+            _controller = ScrollController(initialScrollOffset: _lastOffset);
             return NotificationListener<ScrollNotification>(
               onNotification: (scrollNotification) {
                 if (scrollNotification is ScrollStartNotification) {
@@ -122,20 +118,20 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
     // setState(() {
     //   message = "Scroll Start";
     // });
-     //print('_onStartScroll lastoffset = $_lastOffset  _controller.offset ${_controller.offset}');
+    //print('_onStartScroll lastoffset = $_lastOffset  _controller.offset ${_controller.offset}');
   }
   _onUpdateScroll(ScrollMetrics metrics) {
     // setState(() {
     //   message = "Scroll Update";
     // });
-     //print('_onUpdateScroll lastoffset = $_lastOffset  _controller.offset ${_controller.offset}');
+    //print('_onUpdateScroll lastoffset = $_lastOffset  _controller.offset ${_controller.offset}');
   }
   _onEndScroll(ScrollMetrics metrics) {
     // setState(() {
     //   message = "Scroll End";
     // });
     //_lastOffset = _controller.offset;
-   // print('_onEndScroll lastoffset = $_lastOffset  _controller.offset ${_controller.offset}');
+    // print('_onEndScroll lastoffset = $_lastOffset  _controller.offset ${_controller.offset}');
   }
 
   /// callback for fetching the next page
@@ -146,7 +142,7 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
   }
 
   void _notifyScrollOffset() {
-      _lastOffset = _controller.position.maxScrollExtent;
+    _lastOffset = _controller.position.maxScrollExtent;
   }
 
   Widget _screenWith(Widget child) {

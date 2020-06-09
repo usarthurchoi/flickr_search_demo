@@ -65,7 +65,6 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
   }
 
   void _saveSearch() {
-    print('saving term: $_term...');
     previousSearches[_term] = _deepCopy(_photos);
   }
 
@@ -103,7 +102,6 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
     return BlocBuilder<FlickrBloc, FlickrState>(
       builder: (context, state) {
         if (state is FlickrLoaded) {
-          print('Serch BlocBuild lastoffset is $_lastOffset');
           _controller?.dispose();
           _controller = ScrollController(initialScrollOffset: _lastOffset);
           return CustomScrollView(

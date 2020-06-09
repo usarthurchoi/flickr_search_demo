@@ -68,7 +68,6 @@ Widget _buildGrid(List<FlickrPhoto> photos) {
                 ),
                 onTap: () async {
                   final url = photo.originalImage;
-                  print('passing $url');
                   if (await canLaunch(url)) {
                     await launch(url);
                   }

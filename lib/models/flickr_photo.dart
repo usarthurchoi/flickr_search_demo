@@ -68,7 +68,7 @@ class FlickrPhoto {
   }
 
   String get originalImage {
-    print('original $originalImageLink');
+    //print('original $originalImageLink');
     return originalImageLink ?? imageLarge;
   }
 

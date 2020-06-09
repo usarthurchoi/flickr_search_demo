@@ -17,17 +17,13 @@ class FavoritePhotosDao {
     final finder = Finder(filter: Filter.byKey(photo.uuid));
     final updateCount =
         await _store.update(await _db, photo.toMap(), finder: finder);
-    print('update count: $updateCount  UUID=${photo.uuid}');
+    //print('update count: $updateCount  UUID=${photo.uuid}');
   }
 
   Future delete(FlickrPhoto photo) async {
     final finder = Finder(filter: Filter.byKey(photo.uuid));
     final deleteCount = await _store.delete(await _db, finder: finder);
-
-    print('delete count: $deleteCount  UUID=${photo.uuid}');
-
-    // final something = await _store.record(photo.uuid).delete(await _db);
-    // print('$something');
+    //print('delete count: $deleteCount  UUID=${photo.uuid}');
   }
 
   Future<List<FlickrPhoto>> getFavoritePhotos() async {
@@ -41,7 +37,7 @@ class FavoritePhotosDao {
   Future<bool> contains(FlickrPhoto photo) async {
     final values = await _store.record(photo.uuid).get(await _db);
     if (values == null) {
-      print('${photo.uuid} NOT Found');
+      //print('${photo.uuid} NOT Found');
       return false;
     } else {
       return true;

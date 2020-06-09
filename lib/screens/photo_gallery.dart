@@ -30,13 +30,6 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
   final _dao = FavoritePhotosDao();
 
   @override
-  void initState() {
-    print('initstate ${DateTime.now()}');
-
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     //return OrientationBuilder(builder: (context, orientation) {
     return SliverGrid(
@@ -79,20 +72,18 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
                     setState(() {
                       photo.isFavorite = !photo.isFavorite;
                     });
+
+                    // When isFavorite turned on, insert a record to sembast database.
+                    // When the favorite flag turned off, check the database and remove
+                    // the record if there is any
                     if (await _dao.contains(photo)) {
-                      print('DAO contain the photo...');
                       if (photo.isFavorite == false) {
-                        print('delete the photo...');
                         await _dao.delete(photo);
                       } else {
-                        print('insert the photo...');
                         await _dao.insert(photo);
                       }
                     } else {
-                      print(
-                          'DAO NOT contain the photo...photo.isFavorite ${photo.isFavorite}');
                       if (photo.isFavorite == true) {
-                        print('insert the photo...');
                         await _dao.insert(photo);
                       }
                     }
@@ -109,19 +100,6 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
         // note plus one
         childCount: widget.photos.length + 1,
       ),
-    );
-  }
-
-  Widget checkbox(String title, bool boolValue) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Text(title),
-        Checkbox(
-          value: boolValue,
-          onChanged: (bool value) {},
-        )
-      ],
     );
   }
 }
