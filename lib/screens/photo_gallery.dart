@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flickr_demo/blocs/favorite_photo_bloc/favorite_photo_bloc.dart';
 import 'package:flickr_demo/database/favorite_photos_dao.dart';
 import 'package:flickr_demo/models/flickr_photo.dart';
+import 'package:flickr_demo/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -59,10 +61,15 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
             Container(
               alignment: Alignment.center,
               child: GestureDetector(
-                  child: Image.network(
-                    photo.imageSmallSquare100,
-                    fit: BoxFit.cover,
+                  child: CachedNetworkImage(
+                    imageUrl: photo.imageSmallSquare100,
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
                   ),
+                  // child: Image.network(
+                  //   photo.imageSmallSquare100,
+                  //   fit: BoxFit.cover,
+                  // ),
                   onTap: () async {
                     final url = photo.originalImage;
                     if (await canLaunch(url)) {
@@ -93,12 +100,21 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
                         await _dao.insert(photo);
                       }
                     }
+                    if (photo.isFavorite == true) {
+                      print('try to save image ${photo.originalImage}');
+                      try {
+                        await saveImage(photo.originalImage);
+                        print('saved image ${photo.originalImage}');
+                      } catch (e) {
+                        print(e);
+                      }
+                    }
                   },
                   child: Icon(
                     Icons.favorite,
                     color: photo.isFavorite
                         ? Colors.red
-                        : Colors.grey.withOpacity(0.6),
+                        : Colors.red[100].withOpacity(0.7),
                   )),
             ),
           ]);

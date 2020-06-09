@@ -86,7 +86,7 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
                   floating: false,
                   flexibleSpace: FlexibleSpaceBar(
                     stretchModes: [StretchMode.zoomBackground],
-                    title: Text('#${_photos.length}'),
+                    title: Text('Recent Photos'),
                     background:
                         Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
                   ),

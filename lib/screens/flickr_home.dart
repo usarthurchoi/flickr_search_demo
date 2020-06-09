@@ -11,38 +11,57 @@ class FlickrHome extends StatefulWidget {
   _FlickrHomeState createState() => _FlickrHomeState();
 }
 
-class _FlickrHomeState extends State<FlickrHome> {
+class _FlickrHomeState extends State<FlickrHome>
+    with SingleTickerProviderStateMixin {
+  TabController _tabController;
+
+  @override
+  void initState() {
+    _tabController = TabController(length: 3, vsync: this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        bottomNavigationBar: Opacity(
-          opacity: 0.9,
-          child: Container(
-            color: Theme.of(context).primaryColor,
-            child: TabBar(
-                unselectedLabelColor: Colors.white,
-                labelColor: Colors.amber,
-                tabs: [
-                  Tab(icon: Icon(Icons.watch), text: 'Recent'),
-                  Tab(icon: Icon(Icons.search), text: 'Search'),
-                  Tab(
-                      icon: Icon(
+    return Scaffold(
+      bottomNavigationBar: Opacity(
+        opacity: 0.8,
+        child: Container(
+          color: Theme.of(context).primaryColor,
+          child: TabBar(
+              controller: _tabController,
+              unselectedLabelColor: Colors.white,
+              labelColor: Colors.amber,
+              tabs: [
+                Tab(icon: Icon(Icons.watch), text: 'Recent'),
+                Tab(icon: Icon(Icons.search), text: 'Search'),
+                Tab(
+                    icon: GestureDetector(
+                      onTap: () {
+                        _tabController.index = 2;
+                      },
+                      child: Icon(
                         Icons.favorite,
-                        color: Colors.red,
+                        color: Colors.red[50].withOpacity(0.7),
                       ),
-                      text: 'Favorites'),
-                ]),
-          ),
+                    ),
+                    text: 'Favorites'),
+              ]),
         ),
-        body: TabBarView(
-          children: [
-            FlickrRecentHome(),
-            FlickrSearchHome(),
-            FavoritePhotos(),
-          ],
-        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          FlickrRecentHome(),
+          FlickrSearchHome(),
+          FavoritePhotos(),
+        ],
       ),
     );
   }

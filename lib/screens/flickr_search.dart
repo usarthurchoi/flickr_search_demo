@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/flickr_bloc/flickr_bloc.dart';
 import 'search_history.dart';
 import 'dart:math' as math;
+import '../utils.dart';
 
 class FlickrSearchHome extends StatefulWidget {
   FlickrSearchHome({Key key}) : super(key: key);
@@ -37,6 +38,7 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
   @override
   void dispose() {
     _controller?.dispose();
+    _searchEntryFocus.dispose();
     super.dispose();
   }
 
@@ -109,53 +111,64 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
         //if (state is FlickrLoaded) {
         _controller?.dispose();
         _controller = ScrollController(initialScrollOffset: _lastOffset);
-        return CustomScrollView(
-          controller: _controller,
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 200,
-              pinned: true,
-              floating: false,
-              flexibleSpace: FlexibleSpaceBar(
-                stretchModes: [StretchMode.zoomBackground],
-                title: Text('#${_photos.length}'),
-                background: Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
-              ),
-              actions: [
-                IconButton(
-                  icon: Icon(Icons.photo_album),
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) =>
-                        SearchHistory(previousSearches: previousSearches),
-                  )),
+        return NotificationListener<ScrollNotification>(
+          onNotification: (scrollNotification) {
+            if (scrollNotification is ScrollEndNotification) {
+              _searchEntryFocus.requestFocus();
+            }
+          },
+          child: CustomScrollView(
+            controller: _controller,
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 200,
+                pinned: true,
+                floating: false,
+                flexibleSpace: FlexibleSpaceBar(
+                  stretchModes: [StretchMode.zoomBackground],
+                  title: Text((_photos.length > 0)
+                      ? '${_term.capitalize()} Photos'
+                      : 'Photos'),
+                  background:
+                      Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
                 ),
-              ],
-            ),
-            SliverPersistentHeader(
-              floating: false,
-              pinned: true,
-              delegate: _SearchBarHeaderDelegate(
-                minHeight: 60.0,
-                maxHeight: 70.0,
-                child: _textEntry(),
-              ),
-            ),
-            // SliverToBoxAdapter(
-            //   child: SizedBox(
-            //     height: 70,
-            //     child: _textEntry(),
-            //   ),
-            // ),
-            (_photos.length > 0)
-                ? PhotoGalleryView(
-                    notifyScrollOffset: _notifyScrollOffset,
-                    photos: _photos,
-                    nextPageFetchCallBack: fetchNextPage,
-                  )
-                : SliverFillRemaining(
-                    child: Container(),
+                actions: [
+                  IconButton(
+                    icon: Icon(Icons.history),
+                    onPressed: () =>
+                        Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          SearchHistory(previousSearches: previousSearches),
+                    )),
                   ),
-          ],
+                ],
+              ),
+              SliverPersistentHeader(
+                floating: false,
+                pinned: true,
+                delegate: _SearchBarHeaderDelegate(
+                  minHeight: 60.0,
+                  maxHeight: 70.0,
+                  child: _textEntry(),
+                ),
+              ),
+              // SliverToBoxAdapter(
+              //   child: SizedBox(
+              //     height: 70,
+              //     child: _textEntry(),
+              //   ),
+              // ),
+              (_photos.length > 0)
+                  ? PhotoGalleryView(
+                      notifyScrollOffset: _notifyScrollOffset,
+                      photos: _photos,
+                      nextPageFetchCallBack: fetchNextPage,
+                    )
+                  : SliverFillRemaining(
+                      child: Container(),
+                    ),
+            ],
+          ),
         );
       },
     );
@@ -164,10 +177,14 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
   @override
   bool get wantKeepAlive => true;
 
+  final _searchEntryFocus = FocusNode();
+
   Widget _textEntry() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextField(
+        focusNode: _searchEntryFocus,
+        autofocus: true,
         controller: _searchTextController,
         decoration: InputDecoration(
             prefixIcon: Icon(Icons.search),
@@ -195,6 +212,8 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
               per_page: _page_size,
             ),
           );
+          //FocusScope.of(context).requestFocus(FocusNode());
+          //_searchEntryFocus.requestFocus();
         },
       ),
     );
