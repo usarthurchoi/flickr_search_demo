@@ -1,3 +1,5 @@
+import 'package:flutter/scheduler.dart';
+
 import '../blocs/interesting_photo_bloc/interesting_photo_bloc.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 
@@ -24,12 +26,22 @@ class _FlickrInterestingHomeState extends State<FlickrInterestingHome>
   int _page = DEFAULT_START_PAGE;
   int _page_size = DEFAULT_PER_PAGE;
   DateTime _selectedDate = DateTime.now().add(Duration(days: -1));
+  DatePickerController _dateController = DatePickerController();
 
   List<FlickrPhoto> _photos = [];
   double _lastScrollOffset = 0;
   ScrollController _controller;
 
   bool _endOfStream = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // So tyhat the date picker animates to the current selection
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      _dateController.animateToSelection();
+    });
+  }
 
   @override
   void dispose() {
@@ -79,10 +91,11 @@ class _FlickrInterestingHomeState extends State<FlickrInterestingHome>
                   minHeight: 80.0,
                   maxHeight: 80.0,
                   child: DatePicker(
-                    DateTime.now().add(Duration(days: -30)), // start day
-                    daysCount: 30,
+                    DateTime.now().add(Duration(days: -50)), // start day
+                    controller: _dateController,
+                    daysCount: 50,
                     initialSelectedDate: _selectedDate,
-                    selectionColor: Colors.black,
+                    selectionColor: Colors.deepOrange,
                     selectedTextColor: Colors.white,
                     onDateChange: (date) {
                       // New date selected
@@ -90,8 +103,8 @@ class _FlickrInterestingHomeState extends State<FlickrInterestingHome>
                         // if a different date
                         if (date.flickrDateString() !=
                             _selectedDate.flickrDateString()) {
-                               _photos = [];
-                            _lastScrollOffset = 0;
+                          _photos = [];
+                          _lastScrollOffset = 0;
                           _selectedDate = date;
                           BlocProvider.of<InterestingPhotoBloc>(context).add(
                               FetchInterestingPhotos(

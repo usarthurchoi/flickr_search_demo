@@ -1,4 +1,3 @@
-import 'package:flickr_demo/blocs/favorite_photo_bloc/favorite_photo_bloc.dart';
 import 'package:flickr_demo/screens/consts.dart';
 
 import '../models/flickr_photo.dart';
@@ -17,76 +16,34 @@ class FlickrSearchHome extends StatefulWidget {
   _FlickrSearchHomeState createState() => _FlickrSearchHomeState();
 }
 
+///
+/// AutomaticKeepAliveClientMixin
+/// https://medium.com/@diegoveloper/flutter-persistent-tab-bars-a26220d322bc
+///
 class _FlickrSearchHomeState extends State<FlickrSearchHome>
     with AutomaticKeepAliveClientMixin<FlickrSearchHome> {
-  ///
-  /// AutomaticKeepAliveClientMixin
-  /// https://medium.com/@diegoveloper/flutter-persistent-tab-bars-a26220d322bc
-  ///
-
+  
   Map<String, List<FlickrPhoto>> previousSearches =
       Map<String, List<FlickrPhoto>>();
 
   String _term;
   int _page;
   int _page_size;
-  List<FlickrPhoto> _photos = [];
-  TextEditingController _searchTextController = TextEditingController();
-  ScrollController _controller;
-  double _lastOffset = 0;
-
-
   bool _endOfStream = false;
+
+  List<FlickrPhoto> _photos = [];
+
+  TextEditingController _searchTextController = TextEditingController();
+  final _searchEntryFocus = FocusNode();
+
+  ScrollController _controller;
+  double _lastScrollOffset = 0;
 
   @override
   void dispose() {
     _controller?.dispose();
     _searchEntryFocus.dispose();
     super.dispose();
-  }
-
-  void fetchNextPage() {
-    ++_page;
-    BlocProvider.of<FlickrBloc>(context)
-        .add(SearchFlickr(term: _term, page: _page, per_page: _page_size));
-  }
-
-  ///deep copy
-  List<FlickrPhoto> _deepCopy(List<FlickrPhoto> orginal) {
-    List<FlickrPhoto> copyList = [];
-    for (var item in orginal) {
-      FlickrPhoto fp = new FlickrPhoto(
-        id: item.id,
-        owner: item.owner,
-        originalImageLink: item.originalImageLink,
-        secret: item.secret,
-        server: item.server,
-        farm: item.farm,
-        title: item.title,
-        isFavorite: item.isFavorite,
-      );
-      copyList.add(fp);
-    }
-    return copyList;
-  }
-
-  void _saveSearch() {
-    previousSearches[_term] = _deepCopy(_photos);
-  }
-
-  void _clearSearch() {
-    if (_term != null && _term.isNotEmpty) {
-      //previousSearches[_term] = _photos;
-      _saveSearch();
-    }
-    _term = '';
-    _page = DEFAULT_START_PAGE;
-    _page_size = DEFAULT_PER_PAGE;
-    _photos.removeRange(0, _photos.length);
-  }
-
-  void _notifyScrollOffset() {
-    _lastOffset = _controller.position.maxScrollExtent;
   }
 
   @override
@@ -96,8 +53,7 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
         if (state is FlickrLoaded) {
           setState(() {
             _photos.addAll(state.photos);
-            
-             _endOfStream = state.endOfStream ?? false;
+            _endOfStream = state.endOfStream ?? false;
           });
         } else if (state is FlickrError) {
           Scaffold.of(context).showSnackBar(SnackBar(
@@ -112,68 +68,16 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
   Widget _buildPhotoSearchForm(BuildContext context) {
     return BlocBuilder<FlickrBloc, FlickrState>(
       builder: (context, state) {
-        //if (state is FlickrLoaded) {
         _controller?.dispose();
-        _controller = ScrollController(initialScrollOffset: _lastOffset);
+        _controller = ScrollController(initialScrollOffset: _lastScrollOffset);
         return NotificationListener<ScrollNotification>(
           onNotification: (scrollNotification) {
             if (scrollNotification is ScrollEndNotification) {
-              _searchEntryFocus.requestFocus();
+              // TODO: Not sure this is a good idea
+              //_searchEntryFocus.requestFocus();
             }
           },
-          child: CustomScrollView(
-            controller: _controller,
-            slivers: [
-              SliverAppBar(
-                expandedHeight: 200,
-                pinned: true,
-                floating: false,
-                flexibleSpace: FlexibleSpaceBar(
-                  stretchModes: [StretchMode.zoomBackground],
-                  title: Text((_photos.length > 0)
-                      ? '${_term.capitalize()} Photos'
-                      : 'Photos'),
-                  background:
-                      Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
-                ),
-                actions: [
-                  IconButton(
-                    icon: Icon(Icons.history),
-                    onPressed: () =>
-                        Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) =>
-                          SearchHistory(previousSearches: previousSearches),
-                    )),
-                  ),
-                ],
-              ),
-              SliverPersistentHeader(
-                floating: false,
-                pinned: true,
-                delegate: _SearchBarHeaderDelegate(
-                  minHeight: 60.0,
-                  maxHeight: 70.0,
-                  child: _textEntry(),
-                ),
-              ),
-              // SliverToBoxAdapter(
-              //   child: SizedBox(
-              //     height: 70,
-              //     child: _textEntry(),
-              //   ),
-              // ),
-              (_photos.length > 0)
-                  ? PhotoGalleryView(
-                      notifyScrollOffset: _notifyScrollOffset,
-                      photos: _photos,
-                      nextPageFetchCallBack: fetchNextPage,
-                       endOfStream: _endOfStream,
-                    )
-                  : SliverFillRemaining(
-                      child: Container(),
-                    ),
-            ],
-          ),
+          child: _buildSearchForm(context),
         );
       },
     );
@@ -182,7 +86,55 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
   @override
   bool get wantKeepAlive => true;
 
-  final _searchEntryFocus = FocusNode();
+  CustomScrollView _buildSearchForm(BuildContext context) {
+    return CustomScrollView(
+          controller: _controller,
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 200,
+              pinned: true,
+              floating: false,
+              flexibleSpace: FlexibleSpaceBar(
+                stretchModes: [StretchMode.zoomBackground],
+                title: Text((_photos.length > 0)
+                    ? '${_term.capitalize()} Photos'
+                    : 'Photos'),
+                background:
+                    Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.history),
+                  onPressed: () =>
+                      Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) =>
+                        SearchHistory(previousSearches: previousSearches),
+                  )),
+                ),
+              ],
+            ),
+            SliverPersistentHeader(
+              floating: false,
+              pinned: true,
+              delegate: _SearchBarHeaderDelegate(
+                minHeight: 60.0,
+                maxHeight: 70.0,
+                child: _textEntry(),
+              ),
+            ),
+            (_photos.length > 0)
+                ? PhotoGalleryView(
+                    notifyScrollOffset: _notifyScrollOffset,
+                    photos: _photos,
+                    nextPageFetchCallBack: fetchNextPage,
+                    endOfStream: _endOfStream,
+                  )
+                : SliverFillRemaining(
+                    child: Container(),
+                  ),
+          ],
+        );
+  }
 
   Widget _textEntry() {
     return Padding(
@@ -206,7 +158,7 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
           _clearSearch();
 
           // REST the scroll offset
-          _lastOffset = 0;
+          _lastScrollOffset = 0;
 
           _term = term;
           // Add a search event with a new term
@@ -222,6 +174,51 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
         },
       ),
     );
+  }
+
+  /// next page fetch callback function
+  void fetchNextPage() {
+    ++_page;
+    BlocProvider.of<FlickrBloc>(context)
+        .add(SearchFlickr(term: _term, page: _page, per_page: _page_size));
+  }
+
+  void _saveSearch() {
+    previousSearches[_term] = _deepCopy(_photos);
+  }
+
+  void _clearSearch() {
+    if (_term != null && _term.isNotEmpty) {
+      //previousSearches[_term] = _photos;
+      _saveSearch();
+    }
+    _term = '';
+    _page = DEFAULT_START_PAGE;
+    _page_size = DEFAULT_PER_PAGE;
+    _photos.removeRange(0, _photos.length);
+  }
+
+  void _notifyScrollOffset() {
+    _lastScrollOffset = _controller.position.maxScrollExtent;
+  }
+
+  ///deep copy
+  List<FlickrPhoto> _deepCopy(List<FlickrPhoto> orginal) {
+    List<FlickrPhoto> copyList = [];
+    for (var item in orginal) {
+      FlickrPhoto fp = new FlickrPhoto(
+        id: item.id,
+        owner: item.owner,
+        originalImageLink: item.originalImageLink,
+        secret: item.secret,
+        server: item.server,
+        farm: item.farm,
+        title: item.title,
+        isFavorite: item.isFavorite,
+      );
+      copyList.add(fp);
+    }
+    return copyList;
   }
 }
 
