@@ -1,3 +1,4 @@
+import './flickr_interesting.dart';
 import 'package:flutter/material.dart';
 
 import 'favorite_photos.dart';
@@ -39,27 +40,34 @@ class _FlickrHomeState extends State<FlickrHome>
               unselectedLabelColor: Colors.white,
               labelColor: Colors.amber,
               tabs: [
-                Tab(icon: Icon(Icons.watch), text: 'Recent'),
+                Tab(icon: Icon(Icons.featured_video), text: 'Interesting'),
+                //Tab(icon: Icon(Icons.watch), text: 'Recent'),
                 Tab(icon: Icon(Icons.search), text: 'Search'),
                 Tab(
-                    icon: GestureDetector(
-                      onTap: () {
-                        _tabController.index = 2;
-                      },
-                      child: Icon(
-                        Icons.favorite,
-                        color: Colors.red[50].withOpacity(0.7),
-                      ),
+                  icon: GestureDetector(
+                    onTap: () {
+                      _tabController.index = 2;
+                    },
+                    child: Icon(
+                      Icons.favorite,
+                      color: Colors.red[50].withOpacity(0.7),
                     ),
-                    text: 'Favorites'),
+                  ),
+                  text: 'Favorites',
+                ),
               ]),
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          FlickrRecentHome(),
+          // Flickr interesting photo home
+          FlickrInterestingHome(),
+          // Flickr recent photos
+          //FlickrRecentHome(),
+          // Flickr search by term
           FlickrSearchHome(),
+          // My favorite photos saved locally in a sembast database
           FavoritePhotos(),
         ],
       ),

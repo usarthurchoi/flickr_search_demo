@@ -13,6 +13,7 @@ class PhotoGalleryView extends StatefulWidget {
   final ThumbnailSize thumbnailSize;
   final void Function() nextPageFetchCallBack;
   final void Function() notifyScrollOffset;
+  final bool endOfStream;
   final List<FlickrPhoto> photos;
 
   PhotoGalleryView(
@@ -20,6 +21,7 @@ class PhotoGalleryView extends StatefulWidget {
       @required this.photos,
       @required this.nextPageFetchCallBack,
       @required this.notifyScrollOffset,
+      this.endOfStream = false,
       this.thumbnailSize = ThumbnailSize.size100})
       : super(key: key);
 
@@ -44,32 +46,49 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
       delegate: SliverChildBuilderDelegate(
         (BuildContext context, int index) {
           if (index == widget.photos.length) {
-            // fetch the next page
-            widget.nextPageFetchCallBack();
-            // Notify the scroll offset
-            widget.notifyScrollOffset();
-            return Container(
-              width: 100,
-              height: 100,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
+            if (widget.endOfStream == true) {
+              return null;
+            } else {
+              // fetch the next page
+              widget.nextPageFetchCallBack();
+              // Notify the scroll offset
+              widget.notifyScrollOffset();
+              return Container(
+                width: 100,
+                height: 100,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
           }
           final photo = widget.photos[index];
           return Stack(children: [
             Container(
               alignment: Alignment.center,
+
+              ///
+              /// https://pub.dev/packages/cached_network_image
+              /// https://pub.dev/packages/flutter_cache_manager
+              ///
+              /// A CacheManager to download and cache files in the cache directory of
+              /// the app. Various settings on how long to keep a file can be changed.
+              ///
+              /// It uses the cache-control http header to efficiently retrieve files.
+              /// The more basic usage is explained here. See the complete docs for more info.
+              ///
+              /// child: Image.network(
+              ///   photo.imageSmallSquare100,
+              ///   fit: BoxFit.cover,
+              /// ),
+              ///
               child: GestureDetector(
                   child: CachedNetworkImage(
                     imageUrl: photo.imageSmallSquare100,
                     placeholder: (context, url) => CircularProgressIndicator(),
                     errorWidget: (context, url, error) => Icon(Icons.error),
+                    fit: BoxFit.cover,
                   ),
-                  // child: Image.network(
-                  //   photo.imageSmallSquare100,
-                  //   fit: BoxFit.cover,
-                  // ),
                   onTap: () async {
                     final url = photo.originalImage;
                     if (await canLaunch(url)) {
@@ -120,7 +139,9 @@ class _PhotoGalleryViewState extends State<PhotoGalleryView> {
           ]);
         },
         // note plus one
-        childCount: widget.photos.length + 1,
+        childCount: widget.endOfStream
+            ? widget.photos.length
+            : widget.photos.length + 1,
       ),
     );
   }

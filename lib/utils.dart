@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:image/image.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io' as Io;
@@ -12,6 +13,16 @@ extension StringExtension on String {
   String capitalize() {
     return "${this[0].toUpperCase()}${this.substring(1)}";
   }
+}
+
+DateTime get TODAY => DateTime.now();
+
+extension DateTimeExtension on DateTime {
+  //A specific date, formatted as YYYY-MM-DD, to return interesting photos for.
+  String flickrDateString() {
+    return DateFormat('yyyy-MM-dd').format(this);
+  }
+
 }
 
 Future<String> get applicationDocumentDirectoryPath async {

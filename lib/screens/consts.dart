@@ -7,7 +7,7 @@ TextStyle defaultTitleStyle = GoogleFonts.lato(
 TextStyle defaultErrorStyle = GoogleFonts.lato(
     color: Colors.red, fontSize: 24, fontWeight: FontWeight.bold);
 
-const int DEFAULT_START_PAGE = 0;
+const int DEFAULT_START_PAGE = 1;
 const int DEFAULT_PER_PAGE = 100;
 
 enum ThumbnailSize {

@@ -21,17 +21,18 @@ class RecentPhotoBloc extends Bloc<RecentPhotoEvent, RecentPhotoState> {
   Stream<RecentPhotoState> mapEventToState(
     RecentPhotoEvent event,
   ) async* {
-    if (event is SearchFlickrPopular) {
+    if (event is RecentFlickrPhotos) {
       yield RecentsPhotoLoading();
       try {
-        final photos = await _flickrSearchService.popularFlickr(
+        final results = await _flickrSearchService.recentPhotosFlickr(
           page: event.page,
           per_page: event.per_page,
         );
         yield RecentsPhotoLoaded(
-          photos: photos,
+          photos: results[1],
           page: event.page,
           per_page: event.per_page,
+          endOfStream: results[0],
         );
       } catch (exp) {
         yield RecentsPhotoError(message: exp.toString());

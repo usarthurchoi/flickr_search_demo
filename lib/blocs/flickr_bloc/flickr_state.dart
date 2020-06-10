@@ -17,8 +17,9 @@ class FlickrLoaded extends FlickrState {
   final String term;
   final int page;
   final int per_page;
+  final bool endOfStream;
   final List<FlickrPhoto> photos;
-  FlickrLoaded({@required this.photos, this.term, this.page, this.per_page});
+  FlickrLoaded({@required this.photos, this.term, this.page, this.per_page, this.endOfStream});
 
   @override
   List<Object> get props => [photos, term, page, per_page];

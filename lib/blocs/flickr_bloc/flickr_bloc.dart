@@ -24,16 +24,17 @@ class FlickrBloc extends Bloc<FlickrEvent, FlickrState> {
     if (event is SearchFlickr) {
       yield FlickrLoading();
       try {
-        final photos = await _flickrSearchService.searchFlickr(
+        final results = await _flickrSearchService.searchFlickr(
           term: event.term,
           page: event.page,
           per_page: event.per_page,
         );
         yield FlickrLoaded(
-          photos: photos,
+          photos: results[1],
           page: event.page,
           per_page: event.per_page,
           term: event.term,
+          endOfStream: results[0],
         );
       } catch (exp) {
         yield FlickrError(message: exp.toString());

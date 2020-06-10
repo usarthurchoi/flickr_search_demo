@@ -35,6 +35,9 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
   ScrollController _controller;
   double _lastOffset = 0;
 
+
+  bool _endOfStream = false;
+
   @override
   void dispose() {
     _controller?.dispose();
@@ -93,7 +96,8 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
         if (state is FlickrLoaded) {
           setState(() {
             _photos.addAll(state.photos);
-            //widget.photoCountCallback(_photos.length);
+            
+             _endOfStream = state.endOfStream ?? false;
           });
         } else if (state is FlickrError) {
           Scaffold.of(context).showSnackBar(SnackBar(
@@ -163,6 +167,7 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
                       notifyScrollOffset: _notifyScrollOffset,
                       photos: _photos,
                       nextPageFetchCallBack: fetchNextPage,
+                       endOfStream: _endOfStream,
                     )
                   : SliverFillRemaining(
                       child: Container(),

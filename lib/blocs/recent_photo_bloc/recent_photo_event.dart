@@ -4,11 +4,11 @@ abstract class RecentPhotoEvent extends Equatable {
   const RecentPhotoEvent();
 }
 
-class SearchFlickrPopular extends RecentPhotoEvent {
+class RecentFlickrPhotos extends RecentPhotoEvent {
   final int page;
   final int per_page;
 
-  SearchFlickrPopular({@required this.page, @required this.per_page});
+  RecentFlickrPhotos({@required this.page, @required this.per_page});
 
   @override
   List<Object> get props => [page, per_page];

@@ -21,17 +21,21 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
   int _page_size = DEFAULT_PER_PAGE;
 
   List<FlickrPhoto> _photos = [];
-  double _lastOffset = 0;
+  double _lastScrollOffset = 0;
   ScrollController _controller;
+
+  bool _endOfStream = false;
 
   @override
   void initState() {
     super.initState();
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-      // Issue the initial event for getting recent photos
-      BlocProvider.of<RecentPhotoBloc>(context)
-          .add(SearchFlickrPopular(page: _page, per_page: _page_size));
-    });
+
+    // See the main.dart, we can add the bloc request when we provide
+    // SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+    //   // Issue the initial event for getting recent photos
+    //   BlocProvider.of<RecentPhotoBloc>(context)
+    //       .add(RecentFlickrPhotos(page: _page, per_page: _page_size));
+    // });
     // Note To control the initial scroll offset of the scroll view, provide a
     // controller with its ScrollController.initialScrollOffset property set.
   }
@@ -49,6 +53,7 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
         if (state is RecentsPhotoLoaded) {
           setState(() {
             _photos.addAll(state.photos);
+             _endOfStream = state.endOfStream ?? false;
             //widget.photoCountCallback(_photos.length);
           });
         } else if (state is RecentsPhotoError) {
@@ -56,17 +61,13 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
             content: Text(state.message),
           ));
         } 
-        // else if (state is RecentsPhotoLoading) {
-        //   Scaffold.of(context).showSnackBar(SnackBar(
-        //     content: Text('currently ${_photos.length} photos, Loading next page...'),
-        //   ));
-        // }
+       
       },
       child: BlocBuilder<RecentPhotoBloc, RecentPhotoState>(
         builder: (context, state) {
           //if (state is RecentsPhotoLoaded) {
           _controller?.dispose();
-          _controller = ScrollController(initialScrollOffset: _lastOffset);
+          _controller = ScrollController(initialScrollOffset: _lastScrollOffset);
           return NotificationListener<ScrollNotification>(
             onNotification: (scrollNotification) {
               if (scrollNotification is ScrollStartNotification) {
@@ -96,6 +97,7 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
                         photos: _photos,
                         nextPageFetchCallBack: _fetchNextPage,
                         notifyScrollOffset: _notifyScrollOffset,
+                        endOfStream: _endOfStream,
                         thumbnailSize: ThumbnailSize.size75,
                         // Two sizes; 75 and 100
                       )
@@ -151,11 +153,11 @@ class _FlickrRecentHomeState extends State<FlickrRecentHome>
   void _fetchNextPage() {
     ++_page;
     BlocProvider.of<RecentPhotoBloc>(context)
-        .add(SearchFlickrPopular(page: _page, per_page: _page_size));
+        .add(RecentFlickrPhotos(page: _page, per_page: _page_size));
   }
 
   void _notifyScrollOffset() {
-    _lastOffset = _controller.position.maxScrollExtent;
+    _lastScrollOffset = _controller.position.maxScrollExtent;
   }
 
   Widget _screenWith(Widget child) {
