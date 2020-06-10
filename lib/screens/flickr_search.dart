@@ -22,7 +22,6 @@ class FlickrSearchHome extends StatefulWidget {
 ///
 class _FlickrSearchHomeState extends State<FlickrSearchHome>
     with AutomaticKeepAliveClientMixin<FlickrSearchHome> {
-  
   Map<String, List<FlickrPhoto>> previousSearches =
       Map<String, List<FlickrPhoto>>();
 
@@ -88,52 +87,54 @@ class _FlickrSearchHomeState extends State<FlickrSearchHome>
 
   CustomScrollView _buildSearchForm(BuildContext context) {
     return CustomScrollView(
-          controller: _controller,
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 200,
-              pinned: true,
-              floating: false,
-              flexibleSpace: FlexibleSpaceBar(
-                stretchModes: [StretchMode.zoomBackground],
-                title: Text((_photos.length > 0)
-                    ? '${_term.capitalize()} Photos'
-                    : 'Photos'),
-                background:
-                    Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
+      controller: _controller,
+      slivers: [
+        _appBarSliver(context),
+        SliverPersistentHeader(
+          floating: false,
+          pinned: true,
+          delegate: _SearchBarHeaderDelegate(
+            minHeight: 60.0,
+            maxHeight: 70.0,
+            child: _textEntry(),
+          ),
+        ),
+        (_photos.length > 0)
+            ? PhotoGalleryView(
+                notifyScrollOffset: _notifyScrollOffset,
+                photos: _photos,
+                nextPageFetchCallBack: fetchNextPage,
+                endOfStream: _endOfStream,
+              )
+            : SliverFillRemaining(
+                child: Container(),
               ),
-              actions: [
-                IconButton(
-                  icon: Icon(Icons.history),
-                  onPressed: () =>
-                      Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) =>
-                        SearchHistory(previousSearches: previousSearches),
-                  )),
-                ),
-              ],
-            ),
-            SliverPersistentHeader(
-              floating: false,
-              pinned: true,
-              delegate: _SearchBarHeaderDelegate(
-                minHeight: 60.0,
-                maxHeight: 70.0,
-                child: _textEntry(),
-              ),
-            ),
-            (_photos.length > 0)
-                ? PhotoGalleryView(
-                    notifyScrollOffset: _notifyScrollOffset,
-                    photos: _photos,
-                    nextPageFetchCallBack: fetchNextPage,
-                    endOfStream: _endOfStream,
-                  )
-                : SliverFillRemaining(
-                    child: Container(),
-                  ),
-          ],
-        );
+      ],
+    );
+  }
+
+  SliverAppBar _appBarSliver(BuildContext context) {
+    return SliverAppBar(
+      expandedHeight: MAX_APPBAR_EXPANDED_HEIGHT,
+      pinned: true,
+      floating: false,
+      flexibleSpace: FlexibleSpaceBar(
+        stretchModes: [StretchMode.zoomBackground],
+        title: Text(
+            (_photos.length > 0) ? '${_term.capitalize()} Photos' : 'Photos',
+            style: defaultTitleStyle),
+        background: Image.asset(MAIN_APPBAR_BACKGROUND, fit: BoxFit.cover),
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.history),
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) =>
+                SearchHistory(previousSearches: previousSearches),
+          )),
+        ),
+      ],
+    );
   }
 
   Widget _textEntry() {

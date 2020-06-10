@@ -11,7 +11,7 @@ import './utils.dart';
 
 void main() {
   // SimpleBlocDelegate - https://pub.dev/packages/flutter_bloc
-  BlocSupervisor.delegate = SimpleBlocDelegate();
+  // BlocSupervisor.delegate = SimpleBlocDelegate();
 
   print('test ${DateTime.now().flickrDateString()}');
 

@@ -4,7 +4,6 @@ import '../blocs/interesting_photo_bloc/interesting_photo_bloc.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 
 import './consts.dart';
-import '../blocs/recent_photo_bloc/recent_photo_bloc.dart';
 import '../models/flickr_photo.dart';
 import '../screens/photo_gallery.dart';
 import 'package:flutter/material.dart';
@@ -73,58 +72,14 @@ class _FlickrInterestingHomeState extends State<FlickrInterestingHome>
           return CustomScrollView(
             controller: _controller,
             slivers: [
-              SliverAppBar(
-                expandedHeight: 200,
-                pinned: true,
-                floating: false,
-                flexibleSpace: FlexibleSpaceBar(
-                  stretchModes: [StretchMode.zoomBackground],
-                  title: Text('Interesting Photos'),
-                  background:
-                      Image.asset('assets/flickr.jpg', fit: BoxFit.cover),
-                ),
-              ),
-              SliverPersistentHeader(
-                floating: false,
-                pinned: true,
-                delegate: _TimeLinePickerHeaderDelegate(
-                  minHeight: 80.0,
-                  maxHeight: 80.0,
-                  child: DatePicker(
-                    DateTime.now().add(Duration(days: -50)), // start day
-                    controller: _dateController,
-                    daysCount: 50,
-                    initialSelectedDate: _selectedDate,
-                    selectionColor: Colors.deepOrange,
-                    selectedTextColor: Colors.white,
-                    onDateChange: (date) {
-                      // New date selected
-                      setState(() {
-                        // if a different date
-                        if (date.flickrDateString() !=
-                            _selectedDate.flickrDateString()) {
-                          _photos = [];
-                          _lastScrollOffset = 0;
-                          _selectedDate = date;
-                          BlocProvider.of<InterestingPhotoBloc>(context).add(
-                              FetchInterestingPhotos(
-                                  page: DEFAULT_START_PAGE,
-                                  per_page: DEFAULT_PER_PAGE,
-                                  date: date));
-                        } else {
-                          // ignore it
-                        }
-                      });
-                    },
-                  ),
-                ),
-              ),
+              _appBarSliver(),
+              _datePickerHeaderSliver(context),
               (_photos.length > 0)
                   ? PhotoGalleryView(
                       photos: _photos,
                       nextPageFetchCallBack: _fetchNextPage,
                       notifyScrollOffset: _notifyScrollOffset,
-                      thumbnailSize: ThumbnailSize.size75,
+                      thumbnailSize: ThumbnailSize.size100,
                       endOfStream: _endOfStream,
                       // Two sizes; 75 and 100
                     )
@@ -134,6 +89,56 @@ class _FlickrInterestingHomeState extends State<FlickrInterestingHome>
             ],
           );
         },
+      ),
+    );
+  }
+
+  SliverPersistentHeader _datePickerHeaderSliver(BuildContext context) {
+    return SliverPersistentHeader(
+      floating: false,
+      pinned: true,
+      delegate: _TimeLinePickerHeaderDelegate(
+        minHeight: 80.0,
+        maxHeight: 80.0,
+        child: DatePicker(
+          DateTime.now().add(Duration(days: -50)), // start day
+          controller: _dateController,
+          daysCount: 50,
+          initialSelectedDate: _selectedDate,
+          selectionColor: Colors.deepOrange,
+          selectedTextColor: Colors.white,
+          onDateChange: (date) {
+            // New date selected
+            setState(() {
+              // if a different date
+              if (date.flickrDateString() != _selectedDate.flickrDateString()) {
+                _photos = [];
+                _lastScrollOffset = 0;
+                _selectedDate = date;
+                BlocProvider.of<InterestingPhotoBloc>(context).add(
+                    FetchInterestingPhotos(
+                        page: DEFAULT_START_PAGE,
+                        per_page: DEFAULT_PER_PAGE,
+                        date: date));
+              } else {
+                // ignore it
+              }
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  SliverAppBar _appBarSliver() {
+    return SliverAppBar(
+      expandedHeight: MAX_APPBAR_EXPANDED_HEIGHT,
+      pinned: true,
+      floating: false,
+      flexibleSpace: FlexibleSpaceBar(
+        stretchModes: [StretchMode.zoomBackground],
+        title: Text('Interesting', style: defaultTitleStyle),
+        background: Image.asset(MAIN_APPBAR_BACKGROUND, fit: BoxFit.cover),
       ),
     );
   }
