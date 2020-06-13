@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import './consts.dart';
 import '../blocs/recent_photo_bloc/recent_photo_bloc.dart';
 import '../models/flickr_photo.dart';
 import '../screens/photo_gallery.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FlickrRecentHome extends StatefulWidget {
   FlickrRecentHome({Key key}) : super(key: key);

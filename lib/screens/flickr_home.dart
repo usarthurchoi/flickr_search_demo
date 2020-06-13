@@ -1,8 +1,7 @@
-import './flickr_interesting.dart';
 import 'package:flutter/material.dart';
 
+import './flickr_interesting.dart';
 import 'favorite_photos.dart';
-import 'flickr_recents.dart';
 import 'flickr_search.dart';
 
 class FlickrHome extends StatefulWidget {

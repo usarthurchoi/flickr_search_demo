@@ -1,7 +1,7 @@
-import 'package:flickr_demo/models/flickr_photo.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../models/flickr_photo.dart';
 import 'consts.dart';
 
 class SearchResultSliverGrid extends StatefulWidget {

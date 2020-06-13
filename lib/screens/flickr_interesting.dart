@@ -1,14 +1,14 @@
-import 'package:flutter/scheduler.dart';
+import 'dart:math' as math;
 
-import '../blocs/interesting_photo_bloc/interesting_photo_bloc.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import './consts.dart';
+import '../blocs/interesting_photo_bloc/interesting_photo_bloc.dart';
 import '../models/flickr_photo.dart';
 import '../screens/photo_gallery.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:math' as math;
 import '../utils.dart';
 
 class FlickrInterestingHome extends StatefulWidget {

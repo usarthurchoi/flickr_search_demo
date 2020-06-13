@@ -1,12 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flickr_demo/blocs/favorite_photo_bloc/favorite_photo_bloc.dart';
-import 'package:flickr_demo/database/favorite_photos_dao.dart';
-import 'package:flickr_demo/models/flickr_photo.dart';
-import 'package:flickr_demo/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../database/favorite_photos_dao.dart';
+import '../models/flickr_photo.dart';
+import '../utils.dart';
 import 'consts.dart';
 
 class PhotoGalleryView extends StatefulWidget {

@@ -1,4 +1,3 @@
-import 'package:equatable/equatable.dart';
 import 'package:uuid/uuid.dart';
 
 final Uuid _uuid = Uuid();

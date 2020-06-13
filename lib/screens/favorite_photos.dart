@@ -1,9 +1,9 @@
-import 'package:flickr_demo/blocs/favorite_photo_bloc/favorite_photo_bloc.dart';
-import 'package:flickr_demo/models/flickr_photo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../blocs/favorite_photo_bloc/favorite_photo_bloc.dart';
+import '../models/flickr_photo.dart';
 import 'consts.dart';
 
 class FavoritePhotos extends StatefulWidget {

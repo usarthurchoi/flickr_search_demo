@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'package:meta/meta.dart';
 
 import '../models/flickr_photo.dart';
-import 'package:meta/meta.dart';
-import 'package:http/http.dart' as http;
 import '../utils.dart';
 
 class FlickrSearchService {

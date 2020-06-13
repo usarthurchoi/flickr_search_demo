@@ -1,13 +1,14 @@
-import 'package:flickr_demo/screens/consts.dart';
+import 'dart:math' as math;
 
-import '../models/flickr_photo.dart';
-import '../screens/photo_gallery.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../blocs/flickr_bloc/flickr_bloc.dart';
-import 'search_history.dart';
-import 'dart:math' as math;
+import '../models/flickr_photo.dart';
+import '../screens/photo_gallery.dart';
 import '../utils.dart';
+import 'consts.dart';
+import 'search_history.dart';
 
 class FlickrSearchHome extends StatefulWidget {
   FlickrSearchHome({Key key}) : super(key: key);
